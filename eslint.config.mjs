@@ -12,8 +12,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Separate apps / prototypes with their own toolchains:
-    "friarai/**",
+    // Local standalone prototype (not part of the app):
     "friarai-student-success/**",
   ]),
 ]);
