@@ -34,6 +34,9 @@ export default async function CareerPage() {
           </Link>
           <span className="text-blue-300 hidden sm:block">›</span>
           <span className="text-white font-semibold hidden sm:block">Career Development</span>
+          <Link href="/study" className="hidden md:block rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
+            Study Coach
+          </Link>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-blue-200 text-sm hidden sm:block">{session.user.email}</span>
