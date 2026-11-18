@@ -7,7 +7,8 @@
 - **Digital Twin** — Builds a live snapshot of every student: courses, grades, deadlines, degree progress, and calendar
 - **Proactive Alerts** — Surfaces urgent issues (overdue assignments, low grades, degree gaps) before the student asks
 - **AI Chat** — Every response from GPT-4o is grounded in the student's real data, not generic advice
-- **Issue Triage** — Describe any campus problem in plain English → routed to the exact right office
+- **Campus Information** — Office directory, dining, housing and student orgs, plus an AI issue-triage chat (`/campus`)
+- **Relay** — Describe a campus problem → Relay finds who can fix it, drafts one message, and tracks the case from Delivered to Resolved (`/relay`)
 - **Degree Progress** — Visual breakdown of requirements vs. completion
 - **Study Coach** — Upload a syllabus → study calendar, "how do you feel about this exam?" check-ins, when-to-start and what-to-study recommendations, academic risk scores, alerts and study habits (`/study`)
 - **Providence College SSO** — Students sign in with their @providence.edu Microsoft account
@@ -92,9 +93,17 @@ friarai/
 │   │   ├── chat/                 # Streaming GPT-4o endpoint
 │   │   └── context/              # Student context API
 │   ├── dashboard/                # Main dashboard page
+│   ├── study/                    # Step 3 Study Coach
+│   ├── campus/                   # Campus information + issue triage
+│   ├── relay/                    # Relay case tracking
+│   ├── career/                   # Career development + job discovery
 │   ├── login/                    # SSO login page
+│   ├── globals.css               # Design system (Relay tokens + components)
 │   └── layout.tsx
 ├── components/
+│   ├── AppNav.tsx                # Shared top navigation for every page
+│   ├── relay/RelayApp.tsx        # Relay case UI
+│   ├── study/                    # Study Coach UI
 │   ├── AlertCard.tsx             # Proactive alert display
 │   ├── CalendarStrip.tsx         # Calendar events
 │   ├── Chat.tsx                  # AI chat interface
@@ -102,6 +111,9 @@ friarai/
 │   └── DegreeProgress.tsx        # Degree audit visualization
 ├── lib/
 │   ├── auth.ts                   # NextAuth config (Azure AD SSO)
+│   ├── relay/issues.ts           # Relay scenarios + issue detection (demo data)
+│   ├── campus/pcData.ts          # Campus offices, dining, housing, orgs
+│   ├── studyCoach/               # Study Coach engine (see Step 3 below)
 │   ├── integrations/
 │   │   ├── canvas.ts             # Canvas REST API adapter
 │   │   ├── banner.ts             # Ellucian Ethos/Banner adapter
@@ -175,7 +187,9 @@ risk ≥ 55 = At risk, ≥ 35 = Watch
 | `feat/twin-engine` | Digital Twin Engine |
 | `feat/chat-ui` | AI chat interface |
 | `feat/dashboard` | Dashboard UI |
-| `feat/study-coach` | Step 3: Study Coach (academic risk, syllabus → study plan) |
+| `feat/study-coach` | Step 3: Study Coach (academic risk, syllabus → study plan) — merged |
+| `feat/new-feature` | Campus Information page + universal nav — merged |
+| `relay-demo` | Relay demo app + branding guide — merged; Relay is now `/relay` and its design is the app-wide design system |
 
 ---
 
@@ -192,11 +206,20 @@ Add all env vars in the Vercel dashboard under **Settings → Environment Variab
 
 ---
 
-## Providence College Brand Colors
+## Design System (Relay)
 
-| Color | Hex |
+The whole app uses the Relay branding guide (`relay/BRANDING.md`, by the Relay team). Tokens and component classes live in `app/globals.css`, so pages use them instead of raw colors:
+
+| Token / class | Use |
 |---|---|
-| Navy | `#1B2A5A` |
-| Gold | `#C5A900` |
-| Black | `#000000` |
-| White | `#FFFFFF` |
+| `ink` `#0a0a0a` | Text, primary buttons, active nav, urgent states |
+| `surface` `#f5f5f5` · `surface2` `#eeeeee` | Cards and secondary surfaces |
+| `line` `#e0e0e0` | Every border and divider |
+| `muted` `#888888` · `muted2` `#c0c0c0` | Labels, meta text, placeholders |
+| `success` `#18c964` | Resolved / success only (e.g. internship offer) |
+| `.btn-primary` `.btn-ghost` `.btn-outline` | 100px pill buttons |
+| `.card` `.card-white` `.card-dark` `.card-bordered` | 20px-radius cards, borders not shadows |
+| `.status-pill` (`.is-filled`, `.is-muted`, `.is-success`) · `.dept-tag` · `.chip` | Status, categories, quick picks |
+| `.eyebrow` `.page-title` `.card-title` | Uppercase labels; weight-900 headings with tight tracking |
+
+**Rules:** black and white only; severity and risk are shown by *form*, not color (filled black = urgent / at risk, outlined = attention / watch, gray tag = info / on track). Use `AppNav` for the header on every page. The original standalone Relay demo is kept at `relay/index.html` for reference.
