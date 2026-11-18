@@ -37,6 +37,9 @@ export default async function DashboardPage() {
           <Link href="/career" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
             Career
           </Link>
+          <Link href="/campus" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
+            Campus
+          </Link>
         </nav>
         <div className="flex items-center gap-3">
           <span className="text-blue-200 text-sm hidden sm:block">{session.user.email}</span>
