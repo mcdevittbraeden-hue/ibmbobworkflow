@@ -11,6 +11,7 @@
 - **Relay** — Describe a campus problem → Relay finds who can fix it, drafts one message, and tracks the case from Delivered to Resolved (`/relay`)
 - **Degree Progress** — Visual breakdown of requirements vs. completion
 - **Study Coach** — Upload a syllabus → study calendar, "how do you feel about this exam?" check-ins, when-to-start and what-to-study recommendations, academic risk scores, alerts and study habits (`/study`)
+- **Student Engagement (separate app, `friarai/`)** — Part 5 peer-connection engine: Supabase sign-up and onboarding, AI-matched classmates and clubs, and student-to-student chat. It has its own `package.json` (Next 14); see `friarai/README.md` and `friarai-engagement-plan.md`. The root app's tsconfig/eslint ignore this folder.
 - **Providence College SSO** — Students sign in with their @providence.edu Microsoft account
 
 ## Local Development Setup
