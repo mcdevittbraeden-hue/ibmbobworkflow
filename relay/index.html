@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Relay</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff; --surface: #f5f5f5; --surface2: #eeeeee;
+  --border: #e0e0e0; --text: #0a0a0a; --muted: #888888; --muted2: #c0c0c0;
+  --black: #0a0a0a; --white: #ffffff; --green: #18c964;
+  --r: 20px; --rsm: 12px;
+}
+html, body { height: 100%; background: var(--surface); color: var(--text);
+  font-family: -apple-system,"Inter","Segoe UI",system-ui,sans-serif;
+  font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow: hidden; }
+
+/* ── SHELL ── */
+.shell { display: flex; height: 100vh; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 60px; background: var(--white); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 18px 0; gap: 6px; flex-shrink: 0;
+}
+.sidebar-logo {
+  width: 32px; height: 32px; background: var(--black); border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900; color: var(--white); margin-bottom: 14px;
+}
+.sidebar-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; cursor: pointer; color: var(--muted);
+  transition: background .15s, color .15s;
+}
+.sidebar-icon:hover { background: var(--surface); color: var(--black); }
+.sidebar-icon.active { background: var(--black); color: var(--white); }
+
+/* ── LEFT PANEL ── */
+.left-panel {
+  width: 280px; background: var(--white); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0;
+}
+.left-header {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.left-title { font-size: 15px; font-weight: 800; letter-spacing: -.3px; }
+.new-btn {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--black); color: var(--white); border: none;
+  font-size: 18px; font-weight: 300; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; line-height: 1;
+  transition: background .15s;
+}
+.new-btn:hover { background: #333; }
+
+.case-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+.case-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 16px; cursor: pointer;
+  transition: background .12s; border-radius: 0;
+  position: relative;
+}
+.case-item:hover { background: var(--surface); }
+.case-item.active { background: var(--surface); }
+.case-item.active::before {
+  content: ''; position: absolute; left: 0; top: 10px; bottom: 10px;
+  width: 3px; background: var(--black); border-radius: 0 2px 2px 0;
+}
+.case-dot {
+  width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0;
+}
+.dot-active { background: var(--black); animation: pulse 1.4s infinite; }
+.dot-replied { background: var(--black); }
+.dot-resolved { background: var(--muted2); }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.6)} }
+.case-item-body { flex: 1; min-width: 0; }
+.case-item-title { font-size: 13px; font-weight: 700; color: var(--black); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.case-item-sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.case-item-time { font-size: 11px; color: var(--muted2); flex-shrink: 0; margin-top: 2px; }
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  flex: 1; background: var(--white); display: flex; flex-direction: column;
+  overflow: hidden; position: relative;
+}
+
+/* ── COMPOSE OVERLAY ── */
+.compose-overlay {
+  position: absolute; inset: 0; background: var(--white);
+  display: none; flex-direction: column; z-index: 10; overflow-y: auto;
+}
+.compose-overlay.show { display: flex; }
+
+/* ── PIPELINE STAGES inside right panel ── */
+.stage { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
+.stage.active { display: flex; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; padding: 48px;
+}
+.empty-icon { font-size: 36px; margin-bottom: 20px; opacity: .3; }
+.empty-title { font-size: 20px; font-weight: 900; letter-spacing: -.6px; margin-bottom: 10px; line-height: 1.25; }
+.empty-sub { font-size: 14px; color: var(--muted); max-width: 300px; line-height: 1.65; }
+
+/* ── STAGE INNER SHARED ── */
+.stage-inner {
+  flex: 1; display: flex; flex-direction: column;
+  padding: 44px 40px 56px; max-width: 580px; width: 100%;
+  align-self: center;
+}
+.stage-label { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.stage-heading { font-size: 28px; font-weight: 900; letter-spacing: -1px; line-height: 1.15; margin-bottom: 32px; }
+
+/* Buttons */
+.btn-p { background: var(--black); color: var(--white); font-size: 14px; font-weight: 700; border: none; border-radius: 100px; padding: 12px 26px; cursor: pointer; transition: background .15s, transform .1s; letter-spacing: -.2px; }
+.btn-p:hover { background: #333; }
+.btn-p:active { transform: scale(.97); }
+.btn-p:disabled { opacity: .3; cursor: not-allowed; }
+.btn-g { background: var(--white); color: var(--black); font-size: 14px; font-weight: 700; border: 2px solid var(--border); border-radius: 100px; padding: 10px 22px; cursor: pointer; transition: border-color .15s; letter-spacing: -.2px; }
+.btn-g:hover { border-color: var(--black); }
+.btn-o { background: var(--white); color: var(--black); font-size: 14px; font-weight: 700; border: 2px solid var(--black); border-radius: 100px; padding: 10px 22px; cursor: pointer; transition: background .15s, color .15s; letter-spacing: -.2px; }
+.btn-o:hover { background: var(--black); color: var(--white); }
+.row { display: flex; gap: 10px; }
+.row .btn-p, .row .btn-g, .row .btn-o { flex: 1; }
+
+/* STAGE 1 — describe */
+.input-shell {
+  background: var(--white); border: 2px solid var(--black);
+  border-radius: var(--r); padding: 6px 6px 6px 20px;
+  display: flex; align-items: flex-end; gap: 8px; margin-bottom: 14px;
+  transition: box-shadow .2s;
+}
+.input-shell:focus-within { box-shadow: 0 0 0 4px rgba(10,10,10,.07); }
+.input-shell textarea { flex:1; background:transparent; border:none; outline:none; font-family:inherit; font-size:15px; color:var(--black); resize:none; height:72px; padding:12px 0; line-height:1.5; }
+.input-shell textarea::placeholder { color:var(--muted2); }
+.send-btn { background:var(--black); color:var(--white); border:none; border-radius:12px; width:40px; height:40px; font-size:16px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-bottom:2px; transition:background .15s; }
+.send-btn:hover { background:#333; }
+.chips { display:flex; flex-wrap:wrap; gap:9px; margin-top: 4px; }
+.chip { background:var(--surface); border:1px solid var(--border); border-radius:100px; font-size:12px; font-weight:500; color:var(--muted); padding:5px 13px; cursor:pointer; transition:background .15s,color .15s,border-color .15s; white-space:nowrap; }
+.chip:hover { background:var(--black); color:var(--white); border-color:var(--black); }
+
+/* STAGE 2 — confirm */
+.confirm-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:22px; margin-bottom:22px; }
+.c-label { font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.c-text { font-size:15px; font-weight:600; color:var(--black); line-height:1.55; margin-bottom:16px; }
+.c-tags { display:flex; flex-wrap:wrap; gap:7px; }
+.c-tag { font-size:12px; font-weight:700; padding:4px 12px; border-radius:100px; border:1px solid var(--border); background:var(--white); color:var(--muted); }
+.c-tag.em { border-color:var(--black); color:var(--black); }
+
+/* STAGE 3 — scout */
+.scout-step { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); opacity:0; transform:translateY(5px); transition:opacity .3s,transform .3s; }
+.scout-step:last-child { border-bottom:none; }
+.scout-step.show { opacity:1; transform:translateY(0); }
+.ss-icon { width:30px; height:30px; border-radius:50%; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; }
+.ss-icon.spin { animation:spin 1s linear infinite; font-size:10px; }
+.ss-icon.done { background:var(--black); border-color:var(--black); color:var(--white); font-size:10px; font-weight:900; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.ss-txt { flex:1; font-size:14px; font-weight:600; }
+.ss-det { font-size:12px; color:var(--muted); }
+.people-wrap { display:flex; flex-direction:column; gap:9px; margin:16px 0; opacity:0; transition:opacity .4s; }
+.people-wrap.show { opacity:1; }
+.person-row { display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:var(--rsm); padding:12px 14px; }
+.p-av { width:36px; height:36px; border-radius:50%; background:var(--black); color:var(--white); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0; }
+.p-name { font-size:13px; font-weight:700; }
+.p-title { font-size:11px; color:var(--muted); }
+.p-dept { margin-left:auto; font-size:11px; font-weight:700; padding:3px 9px; border-radius:100px; background:var(--surface2); color:var(--muted); border:1px solid var(--border); white-space:nowrap; }
+
+/* STAGE 4 — email */
+.email-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:22px; margin-bottom:18px; flex:1; }
+.em-row { display:flex; gap:8px; margin-bottom:5px; }
+.em-key { font-size:12px; font-weight:700; color:var(--muted); min-width:32px; padding-top:1px; }
+.em-val { font-size:13px; color:var(--black); line-height:1.4; }
+.em-hr { border:none; border-top:1px solid var(--border); margin:14px 0; }
+.em-body { font-size:14px; color:#333; line-height:1.75; white-space:pre-wrap; outline:none; }
+
+/* STAGE 5 — relay thread */
+.relay-thread-wrap {
+  display: flex; flex-direction: column; flex: 1; overflow: hidden;
+}
+.thread-header { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.th-top { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.th-pill { font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:3px 11px; border-radius:100px; border:2px solid var(--black); color:var(--black); transition:background .3s,color .3s; }
+.th-pill.resolved { background:var(--black); color:var(--white); }
+.th-cid { font-size:12px; color:var(--muted); }
+.th-title { font-size:20px; font-weight:900; letter-spacing:-.6px; margin-bottom:8px; }
+.th-recipients { display:flex; gap:8px; flex-wrap:wrap; }
+.r-chip { display:flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--border); border-radius:100px; padding:4px 12px 4px 6px; }
+.r-av { width:20px; height:20px; border-radius:50%; background:var(--black); color:var(--white); font-size:9px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.r-nm { font-size:12px; font-weight:600; }
+
+.status-bar { margin:12px 24px; background:var(--surface); border:1px solid var(--border); border-radius:var(--rsm); padding:10px 14px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.sb-dot { width:7px; height:7px; border-radius:50%; background:var(--muted2); flex-shrink:0; transition:background .4s; }
+.sb-dot.active { background:var(--black); animation:pulse 1.4s infinite; }
+.sb-dot.done { background:var(--black); }
+.sb-txt { font-size:13px; font-weight:600; }
+.sb-sub { font-size:12px; color:var(--muted); }
+
+.thread-scroll { flex:1; overflow-y:auto; padding:16px 24px; display:flex; flex-direction:column; gap:14px; }
+.msg { display:flex; flex-direction:column; }
+.msg.out { align-items:flex-end; }
+.msg.in { align-items:flex-start; }
+.bubble { max-width:72%; border-radius:16px; padding:11px 15px; font-size:14px; line-height:1.6; }
+.msg.out .bubble { background:var(--black); color:var(--white); border-bottom-right-radius:3px; }
+.msg.in .bubble { background:var(--surface); color:var(--black); border:1px solid var(--border); border-bottom-left-radius:3px; }
+.msg-meta { font-size:11px; color:var(--muted); margin-top:4px; display:flex; align-items:center; gap:4px; }
+.msg-sender { font-weight:600; }
+.tick { font-size:11px; color:var(--muted2); }
+.tick.on { color:var(--black); }
+
+.summary-bar { margin:0 24px 12px; background:var(--black); color:var(--white); border-radius:var(--rsm); padding:14px 18px; display:none; }
+.summary-bar.show { display:block; }
+.summary-bar strong { display:block; font-size:13px; font-weight:800; margin-bottom:4px; }
+.summary-bar p { font-size:13px; opacity:.75; line-height:1.55; }
+.summary-bar a { color:#fff; font-weight:700; text-decoration:underline; }
+
+.thread-actions { padding:12px 24px 20px; display:flex; gap:10px; flex-shrink:0; border-top:1px solid var(--border); }
+.thread-actions .btn-p { flex:2; }
+.thread-actions .btn-g { flex:1; }
+
+/* ── NOTIFICATION ── */
+.notif { position:fixed; top:-90px; left:50%; transform:translateX(-50%); background:var(--black); color:var(--white); border-radius:14px; padding:12px 16px; display:flex; align-items:center; gap:11px; min-width:280px; max-width:400px; z-index:100; transition:top .4s cubic-bezier(.34,1.56,.64,1); box-shadow:0 10px 32px rgba(0,0,0,.14); }
+.notif.show { top:20px; }
+.notif-icon { font-size:18px; flex-shrink:0; }
+.notif-app { font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; opacity:.5; margin-bottom:1px; }
+.notif-title { font-size:13px; font-weight:700; margin-bottom:1px; }
+.notif-body { font-size:12px; opacity:.6; }
+
+@media(max-width:700px) {
+  .sidebar { display:none; }
+  .left-panel { width:100%; display:none; }
+  .left-panel.mobile-show { display:flex; }
+}
+</style>
+</head>
+<body>
+
+<div class="notif" id="notif">
+  <div class="notif-icon">🔔</div>
+  <div>
+    <div class="notif-app">Relay</div>
+    <div class="notif-title" id="notif-title">Message opened</div>
+    <div class="notif-body" id="notif-body">Sarah Mitchell viewed your message.</div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+    <div class="sidebar-logo">R</div>
+    <div class="sidebar-icon active" id="nav-home" onclick="navTo('home')" title="New Case">🏠</div>
+    <div class="sidebar-icon" id="nav-cases" onclick="navTo('cases')" title="My Relays">📋</div>
+  </div>
+
+  <!-- ── LEFT PANEL ── -->
+  <div class="left-panel">
+    <div class="left-header">
+      <span class="left-title">My Relays</span>
+      <button class="new-btn" onclick="startNew()" title="New case">+</button>
+    </div>
+    <div class="case-list" id="case-list">
+      <!-- Demo cases -->
+      <div class="case-item" id="ci-active" onclick="openCase('active')">
+        <div class="case-dot dot-active"></div>
+        <div class="case-item-body">
+          <div class="case-item-title">Registration Hold</div>
+          <div class="case-item-sub">Sarah Mitchell · Registrar</div>
+        </div>
+        <div class="case-item-time">2m</div>
+      </div>
+      <div class="case-item" id="ci-replied" onclick="openCase('replied')">
+        <div class="case-dot dot-replied"></div>
+        <div class="case-item-body">
+          <div class="case-item-title">Dorm AC Repair</div>
+          <div class="case-item-sub">Reply from Marcus Rivera</div>
+        </div>
+        <div class="case-item-time">1h</div>
+      </div>
+      <div class="case-item" id="ci-resolved" onclick="openCase('resolved')">
+        <div class="case-dot dot-resolved"></div>
+        <div class="case-item-body">
+          <div class="case-item-title">Financial Aid Delay</div>
+          <div class="case-item-sub">Resolved · Diana Park</div>
+        </div>
+        <div class="case-item-time">1d</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel" id="right-panel">
+
+    <!-- Empty state -->
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">📬</div>
+      <div class="empty-title">Stuck waiting on the wrong person?</div>
+      <div class="empty-sub">Pick a scenario below — or hit <strong>+</strong> and describe your issue in plain English. Relay finds who can actually fix it and sends them a message in seconds.</div>
+    </div>
+
+    <!-- ── COMPOSE OVERLAY (pipeline) ── -->
+    <div class="compose-overlay" id="compose">
+
+      <!-- Stage 1: Describe -->
+      <div class="stage active" id="stage-1">
+        <div class="stage-inner">
+          <div class="stage-label">What's holding you back?</div>
+          <div class="stage-heading">Tell Relay<br>what's wrong.</div>
+          <div class="input-shell">
+            <textarea id="issue-input" placeholder="e.g. "I can't register for graduation because of an account hold…""></textarea>
+            <button class="send-btn" onclick="goConfirm()">↑</button>
+          </div>
+          <div class="chips">
+            <div class="chip" onclick="fill('I paid my tuition but there\'s still a hold on my account. Graduation is in 6 weeks and I can\'t register for my last required class.')">🎓 Can't register — graduation at risk</div>
+            <div class="chip" onclick="fill('The AC in my dorm has been broken for two weeks. I reported it to my RA but nobody has responded.')">❄️ Dorm AC broken — RA not responding</div>
+            <div class="chip" onclick="fill('My financial aid disbursement is still pending and classes start Monday. I can\'t pay my balance.')">💰 Aid not released — classes start Monday</div>
+            <div class="chip" onclick="fill('I haven\'t been able to access Blackboard for 4 days. I\'ve submitted a ticket but IT hasn\'t responded and I\'m missing assignments.')">💻 Locked out of Blackboard — missing work</div>
+          </div>
+        </div>
+        <div style="padding:0 40px 24px; max-width:580px; align-self:center; width:100%;">
+          <button class="btn-g" onclick="closeCompose()">← Cancel</button>
+        </div>
+      </div>
+
+      <!-- Stage 2: Confirm -->
+      <div class="stage" id="stage-2">
+        <div class="stage-inner">
+          <div class="stage-label">Double-checking your situation</div>
+          <div class="stage-heading">Here's what<br>Relay heard.</div>
+          <div class="confirm-card">
+            <div class="c-label">Your situation, in plain terms</div>
+            <div class="c-text" id="confirm-text"></div>
+            <div class="c-tags" id="confirm-tags"></div>
+          </div>
+          <div class="row">
+            <button class="btn-p" onclick="goScout()">Yes, that's right →</button>
+            <button class="btn-g" onclick="showStage(1)">← Edit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 3: Scout -->
+      <div class="stage" id="stage-3">
+        <div class="stage-inner">
+          <div class="stage-label">Cutting through the bureaucracy</div>
+          <div class="stage-heading" id="scout-heading">Finding who<br>can actually fix this.</div>
+          <div id="ss-steps" style="margin-bottom:16px;">
+            <div class="scout-step" id="ss-1"><div class="ss-icon spin" id="ss-i1">⟳</div><div><div class="ss-txt">Searching university directory</div><div class="ss-det" id="ss-d1">Scanning contacts…</div></div></div>
+            <div class="scout-step" id="ss-2"><div class="ss-icon" id="ss-i2">🏫</div><div><div class="ss-txt">Matching to departments</div><div class="ss-det" id="ss-d2">Identifying offices</div></div></div>
+            <div class="scout-step" id="ss-3"><div class="ss-icon" id="ss-i3">👤</div><div><div class="ss-txt">Finding decision-makers</div><div class="ss-det" id="ss-d3">Looking up contacts</div></div></div>
+          </div>
+          <div class="people-wrap" id="people-wrap"></div>
+          <div class="row" id="scout-cta" style="display:none;">
+            <button class="btn-o" onclick="goEmail()">View contacts</button>
+            <button class="btn-p" onclick="goEmail()">Send with Relay →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stage 4: Email preview -->
+      <div class="stage" id="stage-4">
+        <div class="stage-inner" style="min-height:0;">
+          <div class="stage-label">Review & send</div>
+          <div class="stage-heading">One message.<br>The right people.</div>
+          <div class="email-card">
+            <div id="em-meta"></div>
+            <hr class="em-hr"/>
+            <div class="em-body" id="em-body" contenteditable="true"></div>
+          </div>
+          <div class="row">
+            <button class="btn-p" onclick="goRelay()">Send &amp; open Relay →</button>
+            <button class="btn-g" onclick="showStage(3)">← Back</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /compose -->
+
+    <!-- ── RELAY THREAD VIEW ── -->
+    <div class="relay-thread-wrap" id="relay-view" style="display:none;">
+      <div class="thread-header">
+        <div class="th-top">
+          <div class="th-pill" id="th-pill">Sent</div>
+          <div class="th-cid" id="th-cid">Case RL-1042</div>
+        </div>
+        <div class="th-title" id="th-title">Registration Hold</div>
+        <div class="th-recipients" id="th-recipients"></div>
+      </div>
+      <div class="status-bar">
+        <div class="sb-dot" id="sb-dot"></div>
+        <div>
+          <div class="sb-txt" id="sb-txt">Sent</div>
+          <div class="sb-sub" id="sb-sub"></div>
+        </div>
+      </div>
+      <div class="thread-scroll" id="thread-scroll"></div>
+      <div class="summary-bar" id="summary-bar">
+        <strong>✓ Case Resolved</strong>
+        <p id="summary-text"></p>
+      </div>
+      <div class="thread-actions">
+        <button class="btn-p" id="relay-btn" onclick="advanceRelay()">⚡ Simulate reply</button>
+        <button class="btn-g" onclick="closeRelayView()">← Back</button>
+      </div>
+    </div>
+
+  </div><!-- /right-panel -->
+</div><!-- /shell -->
+
+<script>
+// ═══ DATA ═══
+const ISSUES = {
+  registration: {
+    confirm: "You're a senior with a tuition hold blocking your final course registration before graduation. This is time-sensitive — seats are filling.",
+    tags: ["Registration Hold","Account Hold","Time-Sensitive"],
+    people: [{initials:"SM",name:"Sarah Mitchell",title:"Director of Student Accounts",dept:"Student Accounts"},{initials:"JO",name:"James Okafor",title:"Associate Registrar",dept:"Registrar"}],
+    emailTo: "Sarah Mitchell <s.mitchell@providence.edu>, James Okafor <j.okafor@providence.edu>",
+    emailSubject: "Urgent: Account Hold Blocking Final Course Registration",
+    emailBody: `Dear Sarah and James,\n\nI am a senior at Providence College and have confirmed my tuition payment for this semester. However, there is an active hold on my account preventing me from registering for the final course required for my May graduation.\n\nI have already secured a job offer contingent on graduating on time, so resolving this quickly is critical.\n\nCould you please review my account, verify payment receipt, and clear the hold so I can complete registration?\n\nThank you,\nAlex Carter · Class of 2025 · a.carter@providence.edu`,
+    relayTitle:"Registration Hold", caseId:"RL-1045",
+    recipients:[{initials:"SM",name:"Sarah Mitchell"},{initials:"JO",name:"James Okafor"}],
+    stages:[
+      {pill:"Delivered",dot:"done",txt:"Delivered",sub:"Message received by Student Accounts and Registrar."},
+      {pill:"Opened",dot:"active",txt:"Opened by Sarah Mitchell",sub:"2 minutes ago · Student Accounts",notif:{title:"Sarah Mitchell opened your message",body:"Case RL-1045 · Student Accounts"}},
+      {pill:"Replied",dot:"done",txt:"Reply received",sub:"Sarah Mitchell · Student Accounts",reply:{sender:"Sarah Mitchell",dept:"Student Accounts",text:"Hi Alex,\n\nI've reviewed your account and confirmed your payment was received. The hold was a system error — I've flagged it for removal now.\n\nYou should be clear to register within 30 minutes. I've also cc'd James at the Registrar.\n\nSorry for the trouble!\n\nSarah"}},
+      {pill:"Resolved",dot:"done",txt:"Case resolved",sub:"Hold cleared · You can now register",summary:'Sarah confirmed the hold was a system error and cleared it. James at the Registrar has been cc\'d. <a href="#">Register for your course now →</a>'}
+    ]
+  },
+  dorm: {
+    confirm:"You have an unresolved broken AC in your dorm for two weeks. Your RA hasn't responded and Facilities needs to be involved.",
+    tags:["Maintenance","Dorm","Unresponsive RA"],
+    people:[{initials:"MR",name:"Marcus Rivera",title:"Director of Facilities",dept:"Facilities"},{initials:"CL",name:"Claire Larson",title:"Area Director, Residence Life",dept:"Residence Life"}],
+    emailTo:"Marcus Rivera <m.rivera@providence.edu>",emailSubject:"Maintenance: Broken AC — Dorm (2 weeks unresolved)",
+    emailBody:`Dear Marcus and Claire,\n\nThe AC in my dorm room has been non-functional for two weeks. I reported this to my RA but have not received a response.\n\nThis is significantly affecting my ability to study and sleep. Could you please schedule a repair?\n\nThank you,\nAlex Carter · Class of 2025`,
+    relayTitle:"Dorm AC Repair",caseId:"RL-1046",
+    recipients:[{initials:"MR",name:"Marcus Rivera"},{initials:"CL",name:"Claire Larson"}],
+    stages:[
+      {pill:"Delivered",dot:"done",txt:"Delivered",sub:"Message received by Facilities and Residence Life."},
+      {pill:"Opened",dot:"active",txt:"Opened by Claire Larson",sub:"5 minutes ago · Residence Life",notif:{title:"Claire Larson opened your message",body:"Case RL-1046 · Residence Life"}},
+      {pill:"Replied",dot:"done",txt:"Reply received",sub:"Marcus Rivera · Facilities",reply:{sender:"Marcus Rivera",dept:"Facilities",text:"Hi Alex,\n\nSorry for the delay — your work order wasn't logged correctly. I've assigned a technician to your room tomorrow 10am–12pm to replace the unit.\n\nClaire has been notified to follow up with your RA.\n\nMarcus"}},
+      {pill:"Resolved",dot:"done",txt:"Case resolved",sub:"Repair scheduled tomorrow 10am–12pm",summary:'Marcus has assigned a technician tomorrow 10am–12pm. Claire in Residence Life has been notified. <a href="#">View work order →</a>'}
+    ]
+  },
+  financialaid: {
+    confirm:"Your financial aid disbursement is pending and classes start Monday. Financial Aid and Student Accounts need to expedite.",
+    tags:["Financial Aid","Disbursement Pending","Urgent"],
+    people:[{initials:"DP",name:"Diana Park",title:"Senior Financial Aid Advisor",dept:"Financial Aid"},{initials:"TW",name:"Thomas Webb",title:"Student Accounts Manager",dept:"Student Accounts"}],
+    emailTo:"Diana Park <d.park@providence.edu>, Thomas Webb <t.webb@providence.edu>",emailSubject:"Urgent: Financial Aid Disbursement Pending — Classes Start Monday",
+    emailBody:`Dear Diana and Thomas,\n\nMy financial aid disbursement is showing as pending, and classes begin Monday. Could you please review my status and advise on when funds will be processed?\n\nThank you,\nAlex Carter · Class of 2025`,
+    relayTitle:"Financial Aid Delay",caseId:"RL-1047",
+    recipients:[{initials:"DP",name:"Diana Park"},{initials:"TW",name:"Thomas Webb"}],
+    stages:[
+      {pill:"Delivered",dot:"done",txt:"Delivered",sub:"Message received by Financial Aid and Student Accounts."},
+      {pill:"Opened",dot:"active",txt:"Opened by Diana Park",sub:"Just now · Financial Aid Office",notif:{title:"Diana Park opened your message",body:"Case RL-1047 · Financial Aid"}},
+      {pill:"Replied",dot:"done",txt:"Reply received",sub:"Diana Park · Financial Aid",reply:{sender:"Diana Park",dept:"Financial Aid",text:"Hi Alex,\n\nI've reviewed your file — your aid was held in a batch processing queue. I've manually pushed it through.\n\nThomas at Student Accounts will post the funds by end of day tomorrow. You'll be set before Monday.\n\nDiana"}},
+      {pill:"Resolved",dot:"done",txt:"Case resolved",sub:"Disbursement processed · Arriving by tomorrow",summary:'Diana manually processed your disbursement. Funds will be posted by end of day tomorrow. <a href="#">View your account →</a>'}
+    ]
+  },
+  it: {
+    confirm:"You've had no Blackboard access for 4 days and IT hasn't responded. This is blocking your coursework.",
+    tags:["IT Access","Blackboard","No Response"],
+    people:[{initials:"KN",name:"Kevin Nash",title:"IT Help Desk Lead",dept:"IT Services"}],
+    emailTo:"Kevin Nash <k.nash@providence.edu>",emailSubject:"Escalation: Blackboard Access — No Response in 4 Days",
+    emailBody:`Dear Kevin,\n\nI have been unable to access Blackboard for four days. I submitted a ticket but have not received a response.\n\nThis is preventing me from accessing course materials and submitting assignments.\n\nCould you please escalate and restore my access?\n\nThank you,\nAlex Carter · Class of 2025`,
+    relayTitle:"Blackboard Access",caseId:"RL-1048",
+    recipients:[{initials:"KN",name:"Kevin Nash"}],
+    stages:[
+      {pill:"Delivered",dot:"done",txt:"Delivered",sub:"Message received by IT Help Desk."},
+      {pill:"Opened",dot:"active",txt:"Opened by Kevin Nash",sub:"1 minute ago · IT Services",notif:{title:"Kevin Nash opened your message",body:"Case RL-1048 · IT Services"}},
+      {pill:"Replied",dot:"done",txt:"Reply received",sub:"Kevin Nash · IT Services",reply:{sender:"Kevin Nash",dept:"IT Services",text:"Hey Alex,\n\nFound the issue — your account was flagged by an automated security scan and locked incorrectly. I've cleared it and your access is fully restored now.\n\nSorry this sat in the queue.\n\nKevin"}},
+      {pill:"Resolved",dot:"done",txt:"Case resolved",sub:"Access restored · All courses available",summary:'Kevin cleared a security scan error. Your Blackboard access is fully restored. <a href="#">Go to Blackboard →</a>'}
+    ]
+  }
+};
+
+// Pre-built demo cases for the list
+const DEMO_CASES = {
+  active: { ...ISSUES.registration, _stage: 1 },   // just sent — no reply yet
+  replied: { ...ISSUES.dorm, _stage: 2 },           // reply received
+  resolved: { ...ISSUES.financialaid, _stage: 3 }   // fully resolved
+};
+
+// ═══ STATE ═══
+let current = null;
+let relayStage = 0;
+let isNewCase = false;
+
+// ═══ HELPERS ═══
+const $ = id => document.getElementById(id);
+const delay = ms => new Promise(r => setTimeout(r, ms));
+const fill = t => { $('issue-input').value = t; };
+
+function detect(text) {
+  const t = text.toLowerCase();
+  if (t.includes('blackboard')||(t.includes('it')&&t.includes('access'))) return 'it';
+  if (t.includes('financial aid')||t.includes('disbursement')||t.includes('aid')) return 'financialaid';
+  if (t.includes('ac')||t.includes('dorm')||t.includes('broken')||t.includes('maintenance')||t.includes('ra')) return 'dorm';
+  return 'registration';
+}
+
+function fireNotif(title, body) {
+  $('notif-title').textContent = title;
+  $('notif-body').textContent = body;
+  $('notif').classList.add('show');
+  setTimeout(() => $('notif').classList.remove('show'), 4500);
+}
+
+function showStage(n) {
+  document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+  $(`stage-${n}`).classList.add('active');
+}
+
+function navTo(which) {
+  $('nav-home').classList.toggle('active', which === 'home');
+  $('nav-cases').classList.toggle('active', which === 'cases');
+}
+
+// ═══ COMPOSE (pipeline) ═══
+function startNew() {
+  isNewCase = true;
+  $('issue-input').value = '';
+  showStage(1);
+  $('compose').classList.add('show');
+  $('relay-view').style.display = 'none';
+  $('empty-state').style.display = 'none';
+  document.querySelectorAll('.case-item').forEach(i => i.classList.remove('active'));
+}
+
+function closeCompose() {
+  $('compose').classList.remove('show');
+  $('empty-state').style.display = 'flex';
+}
+
+function goConfirm() {
+  const input = $('issue-input').value.trim();
+  if (!input) { $('issue-input').focus(); return; }
+  current = ISSUES[detect(input)];
+  $('confirm-text').textContent = current.confirm;
+  $('confirm-tags').innerHTML = current.tags.map((t,i) =>
+    `<span class="c-tag${i===current.tags.length-1?' em':''}">${t}</span>`).join('');
+  showStage(2);
+}
+
+async function goScout() {
+  showStage(3);
+  $('scout-heading').textContent = 'Finding who\ncan actually fix this.';
+  ['ss-1','ss-2','ss-3'].forEach(id => $(id).classList.remove('show'));
+  $('people-wrap').classList.remove('show');
+  $('scout-cta').style.display = 'none';
+  ['ss-i1','ss-i2','ss-i3'].forEach((id,i) => {
+    const el = $(id); el.style = '';
+    el.className = i===0 ? 'ss-icon spin' : 'ss-icon';
+    el.textContent = i===0 ? '⟳' : ['🏫','👤'][i-1];
+  });
+  await delay(150);
+  $('ss-1').classList.add('show'); await delay(800);
+  $('ss-i1').className='ss-icon done'; $('ss-i1').textContent='✓'; $('ss-d1').textContent='Directory scanned';
+  await delay(350); $('ss-2').classList.add('show'); await delay(900);
+  $('ss-i2').className='ss-icon done'; $('ss-i2').textContent='✓'; $('ss-d2').textContent=current.people.map(p=>p.dept).join(' · ');
+  await delay(350); $('ss-3').classList.add('show'); await delay(900);
+  $('ss-i3').className='ss-icon done'; $('ss-i3').textContent='✓'; $('ss-d3').textContent=`${current.people.length} contact${current.people.length>1?'s':''} found`;
+  $('scout-heading').textContent = 'Found the\nright people. ✓';
+  $('people-wrap').innerHTML = current.people.map(p=>`
+    <div class="person-row">
+      <div class="p-av">${p.initials}</div>
+      <div><div class="p-name">${p.name}</div><div class="p-title">${p.title}</div></div>
+      <div class="p-dept">${p.dept}</div>
+    </div>`).join('');
+  await delay(200); $('people-wrap').classList.add('show');
+  await delay(200); $('scout-cta').style.display = 'flex';
+}
+
+function goEmail() {
+  $('em-meta').innerHTML = `
+    <div class="em-row"><span class="em-key">To</span><span class="em-val">${current.emailTo}</span></div>
+    <div class="em-row"><span class="em-key">Re</span><span class="em-val">${current.emailSubject}</span></div>`;
+  $('em-body').textContent = current.emailBody;
+  showStage(4);
+}
+
+function goRelay() {
+  $('compose').classList.remove('show');
+  loadRelayView(current, 0, true);
+  if (isNewCase) {
+    addCaseToList(current);
+    isNewCase = false;
+  }
+}
+
+// ═══ CASE LIST ═══
+function addCaseToList(issue) {
+  const list = $('case-list');
+  const id = 'ci-new-' + Date.now();
+  const div = document.createElement('div');
+  div.className = 'case-item active';
+  div.id = id;
+  div.innerHTML = `
+    <div class="case-dot dot-active"></div>
+    <div class="case-item-body">
+      <div class="case-item-title">${issue.relayTitle}</div>
+      <div class="case-item-sub">${issue.recipients.map(r=>r.name).join(', ')}</div>
+    </div>
+    <div class="case-item-time">now</div>`;
+  div.onclick = () => openCaseFromItem(div, issue, 0);
+  list.prepend(div);
+  document.querySelectorAll('.case-item').forEach(i => i.classList.remove('active'));
+  div.classList.add('active');
+}
+
+function openCase(type) {
+  document.querySelectorAll('.case-item').forEach(i => i.classList.remove('active'));
+  $(`ci-${type}`).classList.add('active');
+  $('compose').classList.remove('show');
+  const demo = DEMO_CASES[type];
+  loadRelayView(demo, demo._stage, false);
+}
+
+function openCaseFromItem(el, issue, stage) {
+  document.querySelectorAll('.case-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  loadRelayView(issue, stage, false);
+}
+
+function closeRelayView() {
+  $('relay-view').style.display = 'none';
+  $('empty-state').style.display = 'flex';
+  document.querySelectorAll('.case-item').forEach(i => i.classList.remove('active'));
+}
+
+// ═══ RELAY THREAD VIEW ═══
+function loadRelayView(issue, startStage, animate) {
+  current = issue;
+  relayStage = startStage;
+
+  $('empty-state').style.display = 'none';
+  $('relay-view').style.display = 'flex';
+
+  $('th-title').textContent = issue.relayTitle;
+  $('th-cid').textContent = `Case ${issue.caseId||'RL-1042'}`;
+  $('th-pill').textContent = startStage === 0 ? 'Sent' : issue.stages[startStage-1]?.pill || 'Sent';
+  $('th-pill').classList.toggle('resolved', startStage >= issue.stages.length);
+
+  $('th-recipients').innerHTML = issue.recipients.map(r=>`
+    <div class="r-chip"><div class="r-av">${r.initials}</div><div class="r-nm">${r.name}</div></div>`).join('');
+
+  // Status bar
+  const latestStage = startStage > 0 ? issue.stages[startStage-1] : null;
+  $('sb-dot').className = latestStage ? `sb-dot ${latestStage.dot}` : 'sb-dot active';
+  $('sb-txt').textContent = latestStage ? latestStage.txt : 'Message sent';
+  $('sb-sub').textContent = latestStage ? latestStage.sub : 'Waiting for delivery confirmation…';
+
+  // Build thread from stages so far
+  $('thread-scroll').innerHTML = `
+    <div class="msg out">
+      <div class="bubble">${(issue.emailBody||'').replace(/\n/g,'<br>')}</div>
+      <div class="msg-meta">
+        <span>Just now</span>
+        <span class="tick${startStage>0?' on':''}">✓</span>
+        <span class="tick${startStage>0?' on':''}">✓</span>
+      </div>
+    </div>`;
+
+  // Add any replies from stages already passed
+  for (let i = 0; i < startStage; i++) {
+    const s = issue.stages[i];
+    if (s.reply) appendReply(s.reply);
+  }
+
+  // Summary
+  const finalStage = issue.stages[issue.stages.length-1];
+  const resolved = startStage >= issue.stages.length;
+  if (resolved && finalStage.summary) {
+    $('summary-text').innerHTML = finalStage.summary;
+    $('summary-bar').classList.add('show');
+  } else {
+    $('summary-bar').classList.remove('show');
+  }
+
+  // Button
+  if (resolved) {
+    $('relay-btn').textContent = '✓ Resolved';
+    $('relay-btn').disabled = true;
+  } else {
+    const labels = ['⚡ Simulate delivery','⚡ Simulate opened','⚡ Simulate reply','⚡ Simulate resolution'];
+    $('relay-btn').textContent = labels[relayStage] || '⚡ Continue';
+    $('relay-btn').disabled = false;
+  }
+}
+
+function appendReply(reply) {
+  const div = document.createElement('div');
+  div.className = 'msg in';
+  div.innerHTML = `
+    <div class="bubble">${reply.text.replace(/\n/g,'<br>')}</div>
+    <div class="msg-meta">
+      <span class="msg-sender">${reply.sender}</span>
+      <span>· ${reply.dept}</span>
+    </div>`;
+  $('thread-scroll').appendChild(div);
+  setTimeout(() => div.scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
+}
+
+async function advanceRelay() {
+  if (!current || relayStage >= current.stages.length) return;
+  $('relay-btn').disabled = true;
+  const stage = current.stages[relayStage];
+  relayStage++;
+  await delay(500);
+
+  // Update pill + status
+  $('th-pill').textContent = stage.pill;
+  $('th-pill').classList.toggle('resolved', stage.pill === 'Resolved');
+  $('sb-dot').className = `sb-dot ${stage.dot}`;
+  $('sb-txt').textContent = stage.txt;
+  $('sb-sub').textContent = stage.sub;
+
+  // Activate ticks on delivery
+  if (stage.pill === 'Delivered') {
+    document.querySelectorAll('#thread-scroll .tick').forEach(t => t.classList.add('on'));
+  }
+
+  if (stage.notif) { await delay(400); fireNotif(stage.notif.title, stage.notif.body); }
+
+  if (stage.reply) { await delay(700); appendReply(stage.reply); }
+
+  if (stage.summary) {
+    await delay(400);
+    $('summary-text').innerHTML = stage.summary;
+    $('summary-bar').classList.add('show');
+    $('summary-bar').scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+
+  if (relayStage < current.stages.length) {
+    const labels = ['⚡ Simulate delivery','⚡ Simulate opened','⚡ Simulate reply','⚡ Simulate resolution'];
+    $('relay-btn').textContent = labels[relayStage] || '⚡ Continue';
+    $('relay-btn').disabled = false;
+  } else {
+    $('relay-btn').textContent = '✓ Resolved';
+  }
+}
+</script>
+</body>
+</html>
