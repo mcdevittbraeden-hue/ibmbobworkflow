@@ -18,9 +18,9 @@ const CAMPUS_PROMPTS = [
 function TypingIndicator() {
   return (
     <div className="flex items-center gap-1.5 px-4 py-3">
-      <div className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-      <div className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-      <div className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+      <div className="h-2 w-2 rounded-full bg-muted2 animate-bounce" style={{ animationDelay: '0ms' }} />
+      <div className="h-2 w-2 rounded-full bg-muted2 animate-bounce" style={{ animationDelay: '150ms' }} />
+      <div className="h-2 w-2 rounded-full bg-muted2 animate-bounce" style={{ animationDelay: '300ms' }} />
     </div>
   );
 }
@@ -30,14 +30,14 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   return (
     <div className={clsx('flex', isUser ? 'justify-end' : 'justify-start')}>
       {!isUser && (
-        <div className="h-7 w-7 rounded-full bg-[#1B2A5A] flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mr-2 mt-0.5">
+        <div className="h-7 w-7 rounded-[8px] bg-ink flex items-center justify-center text-white text-xs font-black flex-shrink-0 mr-2 mt-0.5">
           F
         </div>
       )}
       <div
         className={clsx(
-          'max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
-          isUser ? 'bg-[#1B2A5A] text-white rounded-br-sm' : 'bg-gray-100 text-gray-900 rounded-bl-sm'
+          'max-w-[80%]',
+          isUser ? 'bubble-out' : 'bubble-in'
         )}
         style={{ whiteSpace: 'pre-wrap' }}
       >
@@ -85,7 +85,8 @@ export function CampusChat() {
           if (data === '[DONE]') break;
           try {
             accumulated += (JSON.parse(data) as { content: string }).content;
-            setMessages((prev) => { const c = [...prev]; c[assistantIndex] = { role: 'assistant', content: accumulated }; return c; });
+            const content = accumulated;
+            setMessages((prev) => { const c = [...prev]; c[assistantIndex] = { role: 'assistant', content }; return c; });
           } catch { /* ignore */ }
         }
       }
@@ -101,11 +102,11 @@ export function CampusChat() {
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {messages.length === 0 && (
           <div className="py-4">
-            <p className="text-sm font-semibold text-gray-700 mb-3">Describe any campus issue or ask anything:</p>
+            <p className="eyebrow mb-3">Describe any campus issue or ask anything:</p>
             <div className="flex flex-col gap-2">
               {CAMPUS_PROMPTS.map((p) => (
                 <button key={p} onClick={() => sendMessage(p)}
-                  className="text-sm text-left rounded-lg border border-gray-200 px-3 py-2.5 hover:bg-gray-50 hover:border-[#1B2A5A] transition-colors text-gray-700 leading-snug">
+                  className="chip !rounded-[16px] !text-[13px] leading-snug !py-2.5 !px-3.5">
                   {p}
                 </button>
               ))}
@@ -116,14 +117,14 @@ export function CampusChat() {
         {isStreaming && messages[messages.length - 1]?.content === '' && <TypingIndicator />}
         <div ref={messagesEndRef} />
       </div>
-      <div className="border-t border-gray-100 px-4 py-3 bg-white">
-        <div className="flex items-end gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 focus-within:border-[#1B2A5A] focus-within:ring-1 focus-within:ring-[#1B2A5A] transition-all">
+      <div className="border-t border-line px-4 py-3 bg-white">
+        <div className="input-shell flex items-end gap-2 py-1.5 pl-4 pr-1.5">
           <textarea value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
             placeholder="Describe your issue — I'll route you to the right place..."
-            rows={1} className="flex-1 resize-none bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none max-h-32" style={{ lineHeight: '1.5' }} />
+            rows={1} className="flex-1 resize-none bg-transparent py-2 text-sm text-ink placeholder-muted2 outline-none max-h-32" style={{ lineHeight: '1.5' }} />
           <button onClick={() => sendMessage(input)} disabled={!input.trim() || isStreaming}
-            className="flex-shrink-0 rounded-lg bg-[#1B2A5A] p-2 text-white disabled:opacity-40 hover:bg-[#243672] transition-colors">
+            className="send-btn">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
             </svg>

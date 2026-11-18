@@ -15,9 +15,9 @@ const QUICK_PROMPTS = [
 function TypingIndicator() {
   return (
     <div className="flex items-center gap-1.5 px-4 py-3">
-      <div className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-      <div className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-      <div className="h-2 w-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+      <div className="h-2 w-2 rounded-full bg-muted2 animate-bounce" style={{ animationDelay: '0ms' }} />
+      <div className="h-2 w-2 rounded-full bg-muted2 animate-bounce" style={{ animationDelay: '150ms' }} />
+      <div className="h-2 w-2 rounded-full bg-muted2 animate-bounce" style={{ animationDelay: '300ms' }} />
     </div>
   );
 }
@@ -27,16 +27,14 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   return (
     <div className={clsx('flex', isUser ? 'justify-end' : 'justify-start')}>
       {!isUser && (
-        <div className="h-7 w-7 rounded-full bg-[#1B2A5A] flex items-center justify-center text-white text-xs font-bold flex-shrink-0 mr-2 mt-0.5">
+        <div className="h-7 w-7 rounded-[8px] bg-ink flex items-center justify-center text-white text-xs font-black flex-shrink-0 mr-2 mt-0.5">
           F
         </div>
       )}
       <div
         className={clsx(
-          'max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
-          isUser
-            ? 'bg-[#1B2A5A] text-white rounded-br-sm'
-            : 'bg-gray-100 text-gray-900 rounded-bl-sm'
+          'max-w-[80%]',
+          isUser ? 'bubble-out' : 'bubble-in'
         )}
         style={{ whiteSpace: 'pre-wrap' }}
       >
@@ -108,9 +106,10 @@ export function Chat({
           try {
             const parsed = JSON.parse(data) as { content: string };
             accumulated += parsed.content;
+            const content = accumulated;
             setMessages((prev) => {
               const copy = [...prev];
-              copy[assistantIndex] = { role: 'assistant', content: accumulated };
+              copy[assistantIndex] = { role: 'assistant', content };
               return copy;
             });
           } catch {
@@ -145,17 +144,17 @@ export function Chat({
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {messages.length === 0 && (
           <div className="text-center py-8">
-            <div className="h-14 w-14 rounded-full bg-[#1B2A5A] flex items-center justify-center text-white text-2xl font-bold mx-auto mb-3">
+            <div className="h-14 w-14 rounded-[16px] bg-ink flex items-center justify-center text-white text-2xl font-black mx-auto mb-3">
               F
             </div>
-            <p className="text-gray-900 font-semibold">Hi! I&apos;m FriarAI</p>
-            <p className="text-gray-500 text-sm mt-1">Your personal Providence College success coach.</p>
+            <p className="text-lg font-black tracking-[-.5px] text-ink">Hi! I&apos;m FriarAI</p>
+            <p className="text-muted text-sm mt-1">Your personal Providence College success coach.</p>
             <div className="mt-5 flex flex-col gap-2">
               {quickPrompts.map((p) => (
                 <button
                   key={p}
                   onClick={() => sendMessage(p)}
-                  className="text-sm text-left rounded-lg border border-gray-200 px-3 py-2 hover:bg-gray-50 hover:border-[#1B2A5A] transition-colors text-gray-700"
+                  className="chip !rounded-[16px] !text-[13px] leading-snug !py-2.5 !px-3.5"
                 >
                   {p}
                 </button>
@@ -174,8 +173,8 @@ export function Chat({
       </div>
 
       {/* Input area */}
-      <div className="border-t border-gray-100 px-4 py-3 bg-white">
-        <div className="flex items-end gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 focus-within:border-[#1B2A5A] focus-within:ring-1 focus-within:ring-[#1B2A5A] transition-all">
+      <div className="border-t border-line px-4 py-3 bg-white">
+        <div className="input-shell flex items-end gap-2 py-1.5 pl-4 pr-1.5">
           <textarea
             ref={inputRef}
             value={input}
@@ -183,20 +182,20 @@ export function Chat({
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything, or describe a problem you're having..."
             rows={1}
-            className="flex-1 resize-none bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none max-h-32"
+            className="flex-1 resize-none bg-transparent py-2 text-sm text-ink placeholder-muted2 outline-none max-h-32"
             style={{ lineHeight: '1.5' }}
           />
           <button
             onClick={() => sendMessage(input)}
             disabled={!input.trim() || isStreaming}
-            className="flex-shrink-0 rounded-lg bg-[#1B2A5A] p-2 text-white disabled:opacity-40 hover:bg-[#243672] transition-colors"
+            className="send-btn"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
             </svg>
           </button>
         </div>
-        <p className="text-xs text-gray-400 mt-1 text-center">
+        <p className="text-xs text-muted mt-1 text-center">
           Powered by real data from Canvas, Banner & your calendar
         </p>
       </div>

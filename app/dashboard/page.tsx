@@ -5,8 +5,8 @@ import { DegreeProgress } from '@/components/DegreeProgress';
 import { CalendarStrip } from '@/components/CalendarStrip';
 import { Chat } from '@/components/Chat';
 import { getDemoSession } from '@/lib/demoSession';
-import { FadeUp, StaggerList, StaggerItem, SlideInLeft, ScaleIn } from '@/components/Animate';
-import Link from 'next/link';
+import { FadeUp, StaggerList, StaggerItem, SlideInLeft } from '@/components/Animate';
+import { AppNav } from '@/components/AppNav';
 
 export default async function DashboardPage() {
   const session = getDemoSession();
@@ -23,47 +23,19 @@ export default async function DashboardPage() {
   const highAlerts = alerts.filter((a) => a.severity === 'high');
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top nav */}
-      <header className="bg-[#1B2A5A] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10 shadow-md">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center">
-              <span className="text-[#1B2A5A] text-sm font-black">F</span>
-            </div>
-            <span className="font-bold text-lg">FriarAI</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-1">
-            <span className="rounded-md bg-white/10 px-3 py-1.5 text-sm font-medium text-white">Dashboard</span>
-            <Link href="/study" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
-              Study Coach
-            </Link>
-            <Link href="/career" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
-              Career
-            </Link>
-            <Link href="/campus" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
-              Campus
-            </Link>
-          </nav>
-        </div>
-        <div className="flex items-center gap-3 ml-auto">
-          <span className="text-blue-200 text-sm hidden sm:block">{session.user.email}</span>
-          <span className="rounded-full bg-[#C5A900] px-2.5 py-0.5 text-xs font-semibold text-[#1B2A5A]">
-            DEMO
-          </span>
-        </div>
-      </header>
+    <div className="min-h-screen bg-white">
+      <AppNav active="dashboard" email={session.user.email} />
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Greeting */}
         <FadeUp className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="page-title">
             Good {getTimeOfDay()}, {firstName} 👋
           </h1>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <p className="text-muted text-sm mt-2">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
             {highAlerts.length > 0 && (
-              <span className="ml-2 text-red-600 font-medium">
+              <span className="ml-2 font-bold text-ink">
                 · {highAlerts.length} urgent item{highAlerts.length !== 1 ? 's' : ''} need your attention
               </span>
             )}
@@ -74,7 +46,7 @@ export default async function DashboardPage() {
         {alerts.length > 0 && (
           <FadeUp delay={0.08}>
             <section className="mb-6">
-              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+              <h2 className="eyebrow mb-3">
                 Alerts ({alerts.length})
               </h2>
               <StaggerList className="space-y-2">
@@ -92,31 +64,31 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column: deadlines + calendar */}
           <SlideInLeft delay={0.15} className="lg:col-span-1 space-y-6">
-            <div className="rounded-xl bg-white border border-gray-200 p-5 shadow-sm">
-              <h2 className="font-semibold text-gray-900 mb-4">📚 Upcoming Deadlines</h2>
+            <div className="card">
+              <h2 className="card-title mb-4">📚 Upcoming Deadlines</h2>
               <DeadlineList assignments={canvas.assignments} />
             </div>
 
-            <div className="rounded-xl bg-white border border-gray-200 p-5 shadow-sm">
-              <h2 className="font-semibold text-gray-900 mb-4">📅 Your Schedule</h2>
+            <div className="card">
+              <h2 className="card-title mb-4">📅 Your Schedule</h2>
               <CalendarStrip events={calendar.events} />
             </div>
           </SlideInLeft>
 
           {/* Middle column: degree progress */}
           <FadeUp delay={0.2} className="lg:col-span-1">
-            <div className="rounded-xl bg-white border border-gray-200 p-5 shadow-sm h-full">
-              <h2 className="font-semibold text-gray-900 mb-4">🎓 Degree Progress</h2>
+            <div className="card h-full">
+              <h2 className="card-title mb-4">🎓 Degree Progress</h2>
               <DegreeProgress audit={banner.degreeAudit} />
             </div>
           </FadeUp>
 
           {/* Right column: AI chat */}
           <FadeUp delay={0.25} className="lg:col-span-1">
-            <div className="rounded-xl bg-white border border-gray-200 shadow-sm flex flex-col" style={{ height: '600px' }}>
-              <div className="px-5 py-4 border-b border-gray-100">
-                <h2 className="font-semibold text-gray-900">💬 Ask FriarAI</h2>
-                <p className="text-xs text-gray-500 mt-0.5">Ask anything — powered by your academic profile</p>
+            <div className="card p-0 flex flex-col overflow-hidden" style={{ height: '600px' }}>
+              <div className="px-5 py-4 border-b border-line">
+                <h2 className="card-title">💬 Ask FriarAI</h2>
+                <p className="text-xs text-muted mt-0.5">Ask anything — powered by your academic profile</p>
               </div>
               <div className="flex-1 overflow-hidden">
                 <Chat />
@@ -128,21 +100,23 @@ export default async function DashboardPage() {
         {/* Courses grid */}
         <FadeUp delay={0.3}>
           <section className="mt-6">
-            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            <h2 className="eyebrow mb-3">
               Current Courses
             </h2>
             <StaggerList className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               {canvas.courses.map((course) => (
                 <StaggerItem key={course.id}>
-                  <div className="rounded-xl bg-white border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
-                    <p className="text-xs text-[#C5A900] font-semibold mb-1">{course.courseCode}</p>
-                    <p className="text-sm font-medium text-gray-900 leading-snug mb-2">{course.name}</p>
+                  <div className="card p-4">
+                    <p className="eyebrow mb-1">{course.courseCode}</p>
+                    <p className="text-sm font-medium text-ink leading-snug mb-2">{course.name}</p>
                     {course.currentGrade && (
                       <div className="flex items-center justify-between">
-                        <span className={`text-lg font-bold ${gradeColor(course.currentScore ?? 0)}`}>
+                        <span className="text-2xl font-black tracking-[-.8px] text-ink">
                           {course.currentGrade}
                         </span>
-                        <span className="text-xs text-gray-400">{course.currentScore}%</span>
+                        {(course.currentScore ?? 100) < 70
+                          ? <span className="status-pill">{course.currentScore}%</span>
+                          : <span className="text-xs text-muted tabular-nums">{course.currentScore}%</span>}
                       </div>
                     )}
                   </div>
@@ -163,9 +137,3 @@ function getTimeOfDay(): string {
   return 'evening';
 }
 
-function gradeColor(score: number): string {
-  if (score >= 90) return 'text-green-600';
-  if (score >= 80) return 'text-blue-600';
-  if (score >= 70) return 'text-amber-600';
-  return 'text-red-600';
-}

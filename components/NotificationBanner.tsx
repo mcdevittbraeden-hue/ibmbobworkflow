@@ -19,14 +19,14 @@ export function NotificationBanner({ notifications }: { notifications: DeadlineN
           <div
             key={n.id}
             className={clsx(
-              'flex items-start justify-between gap-3 rounded-xl border-l-4 px-4 py-3 shadow-sm',
-              isToday ? 'border-red-500 bg-red-50' : 'border-amber-400 bg-amber-50'
+              'flex items-start justify-between gap-3 px-4 py-3',
+              isToday ? 'card-dark' : 'card-bordered'
             )}
           >
             <div className="flex items-start gap-3 flex-1 min-w-0">
               <span className="text-lg flex-shrink-0">{isToday ? '🚨' : '⏰'}</span>
               <div>
-                <p className={clsx('font-semibold text-sm', isToday ? 'text-red-800' : 'text-amber-800')}>
+                <p className={clsx('font-bold text-sm', isToday ? 'text-white' : 'text-ink')}>
                   {isToday ? 'Apply TODAY' : isTomorrow ? 'Apply by tomorrow' : `${n.daysRemaining} days left to apply`}
                   {' — '}{n.jobTitle} at {n.company}
                 </p>
@@ -36,8 +36,8 @@ export function NotificationBanner({ notifications }: { notifications: DeadlineN
                     target="_blank"
                     rel="noopener noreferrer"
                     className={clsx(
-                      'text-xs font-semibold underline',
-                      isToday ? 'text-red-700' : 'text-amber-700'
+                      'text-xs font-bold underline',
+                      isToday ? 'text-white' : 'text-ink'
                     )}
                   >
                     Apply Now →
@@ -47,7 +47,7 @@ export function NotificationBanner({ notifications }: { notifications: DeadlineN
             </div>
             <button
               onClick={() => setDismissed((prev) => new Set([...prev, n.id]))}
-              className="text-gray-400 hover:text-gray-600 flex-shrink-0 text-lg leading-none mt-0.5"
+              className="opacity-50 hover:opacity-100 flex-shrink-0 text-lg leading-none mt-0.5"
               aria-label="Dismiss"
             >
               ×

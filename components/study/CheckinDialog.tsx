@@ -58,37 +58,37 @@ export function CheckinDialog({ course, item, last, today, onSave, onClose }: {
               aria-pressed={confidence === n}
               onClick={() => setConfidence(n)}
               className={clsx(
-                'grid justify-items-center gap-0.5 rounded-xl border px-1 py-2.5 transition-colors',
-                confidence === n ? 'border-[#1B2A5A] bg-[#1B2A5A] text-white' : 'border-gray-200 bg-gray-50 hover:border-[#1B2A5A]',
+                'grid justify-items-center gap-0.5 rounded-card border px-1 py-2.5 transition-colors',
+                confidence === n ? 'border-ink bg-ink text-white' : 'border-line bg-white hover:border-ink',
               )}
             >
               <span className="text-lg font-bold">{n}</span>
-              <span className={clsx('text-[11px] leading-tight', confidence === n ? 'text-blue-100' : 'text-gray-500')}>{CONFIDENCE_LABELS[n]}</span>
+              <span className={clsx('text-[11px] leading-tight', confidence === n ? 'text-white/70' : 'text-muted')}>{CONFIDENCE_LABELS[n]}</span>
             </button>
           ))}
         </div>
 
         {!item.topics.length && !isPhased && (
           <label className="block text-sm">
-            <span className="font-medium text-gray-900">What does it cover?</span>
-            <span className="block text-xs text-gray-500 mb-1.5">Your syllabus or Canvas page usually lists chapters or topics. Separate them with semicolons.</span>
+            <span className="font-medium text-ink">What does it cover?</span>
+            <span className="block text-xs text-muted mb-1.5">Your syllabus or Canvas page usually lists chapters or topics. Separate them with semicolons.</span>
             <input
               value={topicText}
               onChange={(e) => setTopicText(e.target.value)}
               placeholder="e.g. Leases; Deferred taxes; Pensions"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1B2A5A] focus:outline-none focus:ring-1 focus:ring-[#1B2A5A]"
+              className="w-full rounded-card-sm border border-line px-3 py-2 text-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink"
             />
           </label>
         )}
 
         {topics.length > 0 && !isPhased && (
           <div>
-            <p className="text-sm font-medium text-gray-900">Rate each topic</p>
-            <p className="text-xs text-gray-500 mb-2">1 = lost, 5 = could teach it. Skip any you&apos;re unsure about.</p>
-            <div className="divide-y divide-gray-100">
+            <p className="text-sm font-medium text-ink">Rate each topic</p>
+            <p className="text-xs text-muted mb-2">1 = lost, 5 = could teach it. Skip any you&apos;re unsure about.</p>
+            <div className="divide-y divide-line">
               {topics.map((t) => (
                 <div key={t} className="flex items-center justify-between gap-3 py-2">
-                  <span className="text-sm text-gray-800 min-w-0 break-words">{t}</span>
+                  <span className="text-sm text-ink min-w-0 break-words">{t}</span>
                   <div className="flex gap-1 flex-shrink-0" role="group" aria-label={t}>
                     {[1, 2, 3, 4, 5].map((n) => (
                       <button
@@ -98,7 +98,7 @@ export function CheckinDialog({ course, item, last, today, onSave, onClose }: {
                         onClick={() => rate(t, n)}
                         className={clsx(
                           'h-8 w-8 rounded-md border text-xs font-semibold tabular-nums transition-colors',
-                          ratings[t] === n ? 'border-[#C5A900] bg-[#C5A900] text-[#1B2A5A]' : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-[#1B2A5A]',
+                          ratings[t] === n ? 'border-ink bg-ink text-white' : 'border-line bg-white text-ink/80 hover:border-ink',
                         )}
                       >
                         {n}
@@ -112,13 +112,13 @@ export function CheckinDialog({ course, item, last, today, onSave, onClose }: {
         )}
 
         <label className="block text-sm">
-          <span className="font-medium text-gray-900">Anything on your mind? <span className="font-normal text-gray-400">(optional)</span></span>
+          <span className="font-medium text-ink">Anything on your mind? <span className="font-normal text-muted">(optional)</span></span>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={2}
             placeholder="e.g. I don't get the cost curves from lecture"
-            className="mt-1.5 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1B2A5A] focus:outline-none focus:ring-1 focus:ring-[#1B2A5A]"
+            className="mt-1.5 w-full rounded-card-sm border border-line px-3 py-2 text-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink"
           />
         </label>
       </div>

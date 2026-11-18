@@ -24,7 +24,7 @@ export function CalendarStrip({ events }: { events: CalendarEvent[] }) {
   const days = Object.entries(grouped).slice(0, 4);
 
   if (!days.length) {
-    return <p className="text-sm text-gray-400 py-4 text-center">No upcoming events</p>;
+    return <p className="text-sm text-muted py-4 text-center">No upcoming events</p>;
   }
 
   const today = new Date().toLocaleDateString('en-US', {
@@ -35,21 +35,21 @@ export function CalendarStrip({ events }: { events: CalendarEvent[] }) {
     <div className="space-y-4">
       {days.map(([day, dayEvents]) => (
         <div key={day}>
-          <p className={`text-xs font-semibold mb-2 ${day === today ? 'text-[#1B2A5A]' : 'text-gray-500'}`}>
+          <p className={`eyebrow mb-2 ${day === today ? '!text-ink' : ''}`}>
             {day === today ? '📅 Today' : day}
           </p>
           <div className="space-y-1.5">
             {dayEvents.map((e) => (
-              <div key={e.id} className="flex items-start gap-2 rounded-md bg-gray-50 px-3 py-2 border border-gray-100">
+              <div key={e.id} className="flex items-start gap-2 rounded-card-sm bg-white px-3 py-2 border border-line">
                 {!e.isAllDay && (
-                  <span className="text-xs text-[#C5A900] font-semibold flex-shrink-0 mt-0.5 w-16">
+                  <span className="text-xs text-muted font-semibold flex-shrink-0 mt-0.5 w-16">
                     {formatTime(e.start)}
                   </span>
                 )}
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{e.title}</p>
+                  <p className="text-sm font-medium text-ink truncate">{e.title}</p>
                   {e.location && (
-                    <p className="text-xs text-gray-500 truncate">{e.location}</p>
+                    <p className="text-xs text-muted truncate">{e.location}</p>
                   )}
                 </div>
               </div>

@@ -178,8 +178,9 @@ export default function StudyCoach({ canvas }: { canvas: CanvasData }) {
       {/* Title + actions */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold text-gray-900">Study Coach</h1>
-          <p className="text-gray-500 text-sm mt-0.5 max-w-2xl">
+          <p className="eyebrow mb-2">Step 3 · Student Success</p>
+          <h1 className="page-title">Study Coach</h1>
+          <p className="text-muted text-[15px] mt-2 max-w-2xl">
             Your Canvas deadlines and syllabi, turned into a study plan that adapts to how you feel about each exam.
           </p>
         </div>
@@ -202,20 +203,20 @@ export default function StudyCoach({ canvas }: { canvas: CanvasData }) {
 
       {/* Today + course risk */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <section className="lg:col-span-2 rounded-xl bg-[#1B2A5A] p-5 text-white shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wider text-blue-200">
+        <section className="lg:col-span-2 rounded-card bg-ink p-6 text-white">
+          <p className="text-[11px] font-bold uppercase tracking-[.12em] text-white/50">
             Today · {today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
-          <h2 className="mt-1 text-xl font-bold">{headline}</h2>
+          <h2 className="mt-2 text-[26px] font-black tracking-[-.8px] leading-tight">{headline}</h2>
           {alerts.length ? (
             <ul className="mt-4 space-y-2">
               {alerts.slice(0, 5).map((a, idx) => (
-                <li key={a.key} className="flex flex-wrap items-start gap-3 rounded-lg bg-white/10 p-3 sm:flex-nowrap">
-                  <span className={clsx('mt-1.5 h-2.5 w-2.5 flex-shrink-0 rounded-full',
-                    a.kind === 'checkin' ? 'bg-[#C5A900]' : a.kind === 'risk' || a.kind === 'due' ? 'bg-red-400' : 'bg-blue-300')} />
+                <li key={a.key} className="flex flex-wrap items-start gap-3 rounded-card-sm border border-white/15 p-3.5 sm:flex-nowrap">
+                  <span className={clsx('mt-1.5 h-2 w-2 flex-shrink-0 rounded-full',
+                    a.kind === 'risk' || a.kind === 'due' ? 'bg-white animate-[pulse-dot_1.4s_infinite]' : a.kind === 'checkin' ? 'bg-white' : 'border border-white/60')} />
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold">{a.title}</p>
-                    <p className="text-xs text-blue-100">{a.body}</p>
+                    <p className="text-sm font-bold">{a.title}</p>
+                    <p className="text-xs text-white/60">{a.body}</p>
                     {a.kind === 'checkin' && idx === alerts.findIndex((x) => x.kind === 'checkin') && a.itemId && (
                       <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Quick confidence answer">
                         {[1, 2, 3, 4, 5].map((n) => (
@@ -223,7 +224,7 @@ export default function StudyCoach({ canvas }: { canvas: CanvasData }) {
                             key={n}
                             type="button"
                             onClick={() => saveCheckin(a.itemId!, { confidence: n, topicRatings: latestCheckin(a.itemId!, state.checkins)?.topicRatings ?? {}, note: '' })}
-                            className="rounded-full border border-white/30 px-2.5 py-0.5 text-xs hover:bg-white hover:text-[#1B2A5A] transition-colors"
+                            className="rounded-full border border-white/25 px-3 py-1 text-xs font-medium text-white/80 hover:bg-white hover:text-ink transition-colors"
                           >
                             {n} · {CONFIDENCE_LABELS[n]}
                           </button>
@@ -235,7 +236,7 @@ export default function StudyCoach({ canvas }: { canvas: CanvasData }) {
                     <button
                       type="button"
                       onClick={() => (a.kind === 'checkin' ? setCheckinId(a.itemId!) : setDetailId(a.itemId!))}
-                      className="flex-shrink-0 rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-[#1B2A5A] hover:bg-blue-50"
+                      className="flex-shrink-0 rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-ink hover:bg-surface2"
                     >
                       {a.kind === 'checkin' ? 'Check in' : 'Plan'}
                     </button>
@@ -244,29 +245,29 @@ export default function StudyCoach({ canvas }: { canvas: CanvasData }) {
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-sm text-blue-100">
+            <p className="mt-3 text-sm text-white/70">
               {upcoming[0] ? <>Nothing urgent. Next up: <b>{upcoming[0].item.title}</b> {relDays(upcoming[0].left)}.</> : 'No upcoming deadlines. Upload a syllabus to plan ahead.'}
             </p>
           )}
         </section>
 
         <Card title="📊 Course risk" aside="next 3 weeks">
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-line">
             {courseCards.map(({ course, risk, next }) => (
               <li key={course.id} className="py-2.5 first:pt-0 last:pb-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-[#C5A900]">{course.code}</p>
-                    <p className="text-sm font-medium text-gray-900 leading-snug truncate">{course.title}</p>
+                    <p className="eyebrow">{course.code}</p>
+                    <p className="text-sm font-bold text-ink leading-snug truncate">{course.title}</p>
                   </div>
-                  {next ? <RiskPill level={risk?.level ?? 'low'} /> : <span className="text-xs text-gray-400">No deadlines</span>}
+                  {next ? <RiskPill level={risk?.level ?? 'low'} /> : <span className="text-xs text-muted">No deadlines</span>}
                 </div>
                 {next && (
-                  <button type="button" onClick={() => setDetailId(next.id)} className="mt-1 block text-left text-xs text-gray-500 hover:text-[#1B2A5A]">
+                  <button type="button" onClick={() => setDetailId(next.id)} className="mt-1 block text-left text-xs text-muted hover:text-ink">
                     Next: <span className="underline">{next.title}</span> · {fmtMonthDay(parseISO(next.date))} ({relDays(daysBetween(today, parseISO(next.date)))})
                   </button>
                 )}
-                {risk && risk.reasons[0] && <p className="text-xs text-gray-400">{risk.reasons[0]}</p>}
+                {risk && risk.reasons[0] && <p className="text-xs text-muted">{risk.reasons[0]}</p>}
               </li>
             ))}
           </ul>
@@ -277,19 +278,19 @@ export default function StudyCoach({ canvas }: { canvas: CanvasData }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card title="📚 Coming up" aside={upcoming.length ? `next 45 days · ${upcoming.length}` : undefined}>
           {upcoming.length ? (
-            <ul className="divide-y divide-gray-100">
+            <ul className="divide-y divide-line">
               {upcoming.map(({ course, item, left }) => {
                 const risk = riskFor(item, ctx);
                 return (
                   <li key={item.id}>
-                    <button type="button" onClick={() => setDetailId(item.id)} className="grid w-full grid-cols-[52px_minmax(0,1fr)] sm:grid-cols-[56px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-1 py-2.5 text-left hover:bg-gray-50">
+                    <button type="button" onClick={() => setDetailId(item.id)} className="grid w-full grid-cols-[52px_minmax(0,1fr)] sm:grid-cols-[56px_minmax(0,1fr)_auto] items-center gap-3 rounded-card-sm px-1 py-2.5 text-left hover:bg-white">
                       <span className="text-center">
-                        <span className="block text-xl font-bold leading-none text-[#1B2A5A] tabular-nums">{left}</span>
-                        <span className="text-[10px] uppercase tracking-wider text-gray-400">{left === 1 ? 'day' : 'days'}</span>
+                        <span className="block text-2xl font-black tracking-[-.8px] leading-none text-ink tabular-nums">{left}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-muted">{left === 1 ? 'day' : 'days'}</span>
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-sm font-medium text-gray-900 break-words">{item.title}</span>
-                        <span className="block text-xs text-gray-500">
+                        <span className="block text-sm font-bold text-ink break-words">{item.title}</span>
+                        <span className="block text-xs text-muted">
                           {course.code} · {typeInfo(item.type).label}{item.weight != null ? ` · ${item.weight}%` : ''} · <ConfidenceDots value={latestCheckin(item.id, state.checkins)?.confidence ?? null} />
                         </span>
                       </span>
@@ -300,7 +301,7 @@ export default function StudyCoach({ canvas }: { canvas: CanvasData }) {
               })}
             </ul>
           ) : (
-            <p className="py-4 text-center text-sm text-gray-400">Nothing due in the next 45 days.</p>
+            <p className="py-4 text-center text-sm text-muted">Nothing due in the next 45 days.</p>
           )}
         </Card>
 
@@ -317,9 +318,9 @@ export default function StudyCoach({ canvas }: { canvas: CanvasData }) {
         <Card title="🌱 Study habits for you">
           <ul className="space-y-3">
             {habits.map((h) => (
-              <li key={h.title} className={clsx('border-l-2 pl-3', h.flag ? 'border-[#C5A900]' : 'border-gray-200')}>
-                <p className="text-sm font-semibold text-gray-900">{h.title}</p>
-                <p className="text-sm text-gray-500">{h.body}</p>
+              <li key={h.title} className={clsx('border-l-2 pl-3', h.flag ? 'border-ink' : 'border-line')}>
+                <p className="text-sm font-black tracking-[-.4px] text-ink">{h.title}</p>
+                <p className="text-sm text-muted">{h.body}</p>
               </li>
             ))}
           </ul>
@@ -327,10 +328,10 @@ export default function StudyCoach({ canvas }: { canvas: CanvasData }) {
       </div>
 
       {/* AI coach that knows the student's check-ins */}
-      <div ref={chatRef} className="rounded-xl bg-white border border-gray-200 shadow-sm flex flex-col scroll-mt-20" style={{ height: '520px' }}>
-        <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">💬 Ask FriarAI about your exams</h2>
-          <p className="text-xs text-gray-500 mt-0.5">Knows your deadlines, confidence check-ins and weak topics</p>
+      <div ref={chatRef} className="card p-0 flex flex-col overflow-hidden scroll-mt-24" style={{ height: '520px' }}>
+        <div className="px-5 py-4 border-b border-line">
+          <h2 className="card-title">💬 Ask FriarAI about your exams</h2>
+          <p className="text-xs text-muted mt-0.5">Knows your deadlines, confidence check-ins and weak topics</p>
         </div>
         <div className="flex-1 overflow-hidden">
           <Chat
@@ -346,28 +347,28 @@ export default function StudyCoach({ canvas }: { canvas: CanvasData }) {
       </div>
 
       {/* Preferences */}
-      <footer className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-500">
+      <footer className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted">
         <label className="inline-flex items-center gap-2">Study time
           <input
             type="time"
             value={state.prefs.studyTime}
             onChange={(e) => setState({ ...state, prefs: { ...state.prefs, studyTime: e.target.value || '19:00' } })}
-            className="rounded-md border border-gray-200 bg-white px-2 py-1 text-gray-800"
+            className="rounded-full border-2 border-line bg-white px-3 py-1 text-ink focus:border-ink focus:outline-none"
           />
         </label>
         <label className="inline-flex items-center gap-2">Daily limit
           <select
             value={cap}
             onChange={(e) => setState({ ...state, prefs: { ...state.prefs, maxDailyMinutes: Number(e.target.value) } })}
-            className="rounded-md border border-gray-200 bg-white px-2 py-1 text-gray-800"
+            className="rounded-full border-2 border-line bg-white px-3 py-1 text-ink focus:border-ink focus:outline-none"
           >
             <option value={120}>2 hours</option>
             <option value={180}>3 hours</option>
             <option value={240}>4 hours</option>
           </select>
         </label>
-        <button type="button" className="underline hover:text-red-600" onClick={resetData}>Clear my check-ins</button>
-        <p className="w-full text-xs text-gray-400">
+        <button type="button" className="font-semibold underline hover:text-ink" onClick={resetData}>Clear my check-ins</button>
+        <p className="w-full text-xs text-muted">
           Check-ins stay in this browser. Plans are built from Canvas, your syllabus and your check-ins; always confirm dates and grading with your professor.
         </p>
       </footer>
@@ -399,7 +400,7 @@ export default function StudyCoach({ canvas }: { canvas: CanvasData }) {
       {uploadOpen && <SyllabusUpload today={today} onSave={saveSyllabus} onClose={() => setUploadOpen(false)} />}
 
       {toast && (
-        <div role="status" className="fixed top-16 left-1/2 z-[60] max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm text-white shadow-lg">
+        <div role="status" className="fixed top-5 left-1/2 z-[60] max-w-[calc(100vw-32px)] -translate-x-1/2 rounded-[16px] bg-ink px-4 py-3 text-sm font-semibold text-white shadow-[0_12px_40px_rgba(0,0,0,.14)]">
           {toast}
         </div>
       )}

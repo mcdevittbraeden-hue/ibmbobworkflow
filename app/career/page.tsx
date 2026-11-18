@@ -7,7 +7,12 @@ import { ResumeReview } from '@/components/ResumeReview';
 import { CareerChat } from '@/components/CareerChat';
 import { JobDiscovery } from '@/components/JobDiscovery';
 import { FadeUp, StaggerList, StaggerItem } from '@/components/Animate';
-import Link from 'next/link';
+import { AppNav } from '@/components/AppNav';
+
+/** Whole days until an ISO date (request-time; the page awaits connection()). */
+function daysUntil(iso: string): number {
+  return Math.ceil((new Date(iso).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+}
 
 export default async function CareerPage() {
   await connection();
@@ -22,58 +27,32 @@ export default async function CareerPage() {
   const urgentDeadlines = profile.applicationDeadlineSoon.filter((i) => i.status !== 'accepted');
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Nav */}
-      <header className="bg-[#1B2A5A] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10 shadow-md">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center">
-              <span className="text-[#1B2A5A] text-sm font-black">F</span>
-            </div>
-            <span className="font-bold text-lg">FriarAI</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-1">
-            <Link href="/dashboard" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
-              Dashboard
-            </Link>
-            <Link href="/study" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
-              Study Coach
-            </Link>
-            <span className="rounded-md bg-white/10 px-3 py-1.5 text-sm font-medium text-white">Career</span>
-            <Link href="/campus" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
-              Campus
-            </Link>
-          </nav>
-        </div>
-        <div className="flex items-center gap-3 ml-auto">
-          <span className="text-blue-200 text-sm hidden sm:block">{session.user.email}</span>
-          <span className="rounded-full bg-[#C5A900] px-2.5 py-0.5 text-xs font-semibold text-[#1B2A5A]">DEMO</span>
-        </div>
-      </header>
+    <div className="min-h-screen bg-white">
+      <AppNav active="career" email={session.user.email} />
 
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
 
         {/* Hero header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Career Development</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <h1 className="page-title">Career Development</h1>
+          <p className="text-muted text-sm mt-2">
             {audit.major} · {audit.minor ? `${audit.minor} Minor · ` : ''}{audit.expectedGraduationTerm} · GPA {audit.gpa.toFixed(2)}
           </p>
         </div>
 
         {/* Urgent application deadlines banner */}
         {urgentDeadlines.length > 0 && (
-          <div className="mb-6 rounded-xl border-l-4 border-red-500 bg-red-50 p-4">
-            <p className="font-semibold text-red-800 text-sm mb-2">
+          <div className="mb-6 card-dark">
+            <p className="font-extrabold text-sm mb-2">
               ⚠ {urgentDeadlines.length} application deadline{urgentDeadlines.length > 1 ? 's' : ''} in the next 14 days
             </p>
             <ul className="space-y-1">
               {urgentDeadlines.map((i) => {
-                const days = Math.ceil((new Date(i.deadline!).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                const days = daysUntil(i.deadline!);
                 return (
-                  <li key={i.id} className="text-sm text-red-700 flex justify-between">
-                    <span>{i.company} — {i.role}</span>
-                    <span className="font-semibold">{days <= 0 ? 'TODAY' : `${days}d`}</span>
+                  <li key={i.id} className="text-sm flex justify-between gap-3">
+                    <span className="opacity-75">{i.company} — {i.role}</span>
+                    <span className="font-bold tabular-nums">{days <= 0 ? 'TODAY' : `${days}d`}</span>
                   </li>
                 );
               })}
@@ -90,10 +69,10 @@ export default async function CareerPage() {
             { label: 'Top Match', value: `${profile.internships[0]?.matchScore ?? 0}%`, sub: profile.internships[0]?.company },
           ].map((stat) => (
             <StaggerItem key={stat.label}>
-              <div className="rounded-xl bg-white border border-gray-200 p-4 shadow-sm text-center">
-                <p className="text-2xl font-black text-[#1B2A5A]">{stat.value}</p>
-                <p className="text-xs font-semibold text-gray-700 mt-0.5">{stat.label}</p>
-                {stat.sub && <p className="text-xs text-gray-400 mt-0.5 truncate">{stat.sub}</p>}
+              <div className="card p-4 text-center">
+                <p className="text-3xl font-black tracking-[-1px] text-ink tabular-nums">{stat.value}</p>
+                <p className="eyebrow mt-1">{stat.label}</p>
+                {stat.sub && <p className="text-xs text-muted mt-0.5 truncate">{stat.sub}</p>}
               </div>
             </StaggerItem>
           ))}
@@ -101,27 +80,27 @@ export default async function CareerPage() {
 
         {/* Target roles & skills */}
         <FadeUp delay={0.15} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="rounded-xl bg-white border border-gray-200 p-5 shadow-sm">
-            <h2 className="font-semibold text-gray-900 mb-3">🎯 Target Roles</h2>
+          <div className="card">
+            <h2 className="card-title mb-3">🎯 Target Roles</h2>
             <ul className="space-y-1.5">
               {profile.targetRoles.map((r) => (
-                <li key={r} className="flex items-center gap-2 text-sm text-gray-700">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#C5A900] flex-shrink-0" />
+                <li key={r} className="flex items-center gap-2 text-sm text-ink/80">
+                  <span className="h-1.5 w-1.5 rounded-full bg-ink flex-shrink-0" />
                   {r}
                 </li>
               ))}
             </ul>
           </div>
-          <div className="rounded-xl bg-white border border-gray-200 p-5 shadow-sm">
-            <h2 className="font-semibold text-gray-900 mb-3">🛠 Skills on Resume</h2>
+          <div className="card">
+            <h2 className="card-title mb-3">🛠 Skills on Resume</h2>
             <div className="flex flex-wrap gap-2">
               {profile.skills.map((s) => (
-                <span key={s} className="rounded-full bg-[#1B2A5A] text-white px-3 py-1 text-xs font-medium">
+                <span key={s} className="dept-tag">
                   {s}
                 </span>
               ))}
             </div>
-            <p className="text-xs text-gray-400 mt-3">Skills are pulled from your resume profile</p>
+            <p className="text-xs text-muted mt-3">Skills are pulled from your resume profile</p>
           </div>
         </FadeUp>
 
@@ -131,8 +110,8 @@ export default async function CareerPage() {
           {/* Left: internship pipeline */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">💼 Internship Pipeline</h2>
-              <span className="text-xs text-gray-500">Sorted by match score</span>
+              <h2 className="card-title">💼 Internship Pipeline</h2>
+              <span className="text-xs text-muted">Sorted by match score</span>
             </div>
             <StaggerList className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {profile.internships.map((i) => (
@@ -147,16 +126,16 @@ export default async function CareerPage() {
           <FadeUp delay={0.2} className="lg:col-span-1 space-y-6">
 
             {/* Resume review */}
-            <div className="rounded-xl bg-white border border-gray-200 p-5 shadow-sm">
-              <h2 className="font-semibold text-gray-900 mb-4">📄 Resume Review</h2>
+            <div className="card">
+              <h2 className="card-title mb-4">📄 Resume Review</h2>
               <ResumeReview sections={profile.resumeSections} />
             </div>
 
             {/* Career AI chat */}
-            <div className="rounded-xl bg-white border border-gray-200 shadow-sm flex flex-col" style={{ height: '540px' }}>
-              <div className="px-5 py-4 border-b border-gray-100">
-                <h2 className="font-semibold text-gray-900">🤝 Career Coach</h2>
-                <p className="text-xs text-gray-500 mt-0.5">Knows your major, GPA, courses & target roles</p>
+            <div className="card p-0 flex flex-col overflow-hidden" style={{ height: '540px' }}>
+              <div className="px-5 py-4 border-b border-line">
+                <h2 className="card-title">🤝 Career Coach</h2>
+                <p className="text-xs text-muted mt-0.5">Knows your major, GPA, courses & target roles</p>
               </div>
               <div className="flex-1 overflow-hidden">
                 <CareerChat />
@@ -168,14 +147,14 @@ export default async function CareerPage() {
 
         {/* AI Job Discovery */}
         <FadeUp delay={0.1} className="mt-8">
-          <div className="rounded-xl bg-white border border-gray-200 p-6 shadow-sm">
+          <div className="card">
             <JobDiscovery />
           </div>
         </FadeUp>
 
         {/* PC Career resources footer */}
-        <div className="mt-8 rounded-xl bg-[#1B2A5A] p-6 text-white">
-          <h2 className="font-semibold mb-4">🏛 Providence College Career Resources</h2>
+        <div className="mt-8 rounded-card bg-ink p-6 text-white">
+          <h2 className="text-[17px] font-black tracking-[-.4px] mb-4">🏛 Providence College Career Resources</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { name: 'Career Center', desc: 'Resume reviews, mock interviews, job fairs', url: 'https://careercenter.providence.edu' },
@@ -187,10 +166,10 @@ export default async function CareerPage() {
                 href={r.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg bg-white/10 hover:bg-white/20 transition-colors p-4 block"
+                className="rounded-card-sm border border-white/15 hover:border-white/60 transition-colors p-4 block"
               >
-                <p className="font-semibold text-sm">{r.name}</p>
-                <p className="text-xs text-blue-200 mt-1">{r.desc}</p>
+                <p className="font-bold text-sm">{r.name} →</p>
+                <p className="text-xs text-white/60 mt-1">{r.desc}</p>
               </a>
             ))}
           </div>

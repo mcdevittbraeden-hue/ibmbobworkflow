@@ -1,24 +1,178 @@
 @import "tailwindcss";
 
+/*
+ * FriarAI design system — adopted from the Relay branding guide
+ * (relay/BRANDING.md). Black and white only; green is reserved for
+ * resolved / success states. Headings are weight 900 with tight tracking,
+ * buttons and tags are 100px pills, large cards are 20px-radius surfaces
+ * with borders (no shadows).
+ *
+ * Tokens become Tailwind utilities: bg-surface, text-muted, border-line,
+ * bg-ink, text-success, rounded-card, rounded-card-sm …
+ */
 @theme inline {
   --color-background: #ffffff;
-  --color-foreground: #1a1a1a;
-  --color-pc-navy: #1B2A5A;
-  --color-pc-gold: #C5A900;
-  --color-pc-black: #000000;
-  --color-pc-white: #ffffff;
-  --color-pc-gray: #f4f5f7;
-  --color-pc-border: #e5e7eb;
-  --color-pc-muted: #6b7280;
-  --color-alert-high: #dc2626;
-  --color-alert-medium: #d97706;
-  --color-alert-low: #2563eb;
-  --font-sans: var(--font-geist-sans);
+  --color-foreground: #0a0a0a;
+
+  --color-ink: #0a0a0a;        /* primary text, CTAs, active elements */
+  --color-ink-hover: #333333;  /* hover on black fills */
+  --color-surface: #f5f5f5;    /* card / input backgrounds */
+  --color-surface2: #eeeeee;   /* secondary surface, hover states */
+  --color-line: #e0e0e0;       /* all borders and dividers */
+  --color-muted: #888888;      /* secondary / label text */
+  --color-muted2: #c0c0c0;     /* placeholders, inactive states */
+  --color-success: #18c964;    /* resolved / success only */
+
+  --radius-card: 20px;         /* large cards, input boxes */
+  --radius-card-sm: 12px;      /* small cards, banners */
+  --radius-inline: 8px;        /* inline elements */
+
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--color-background);
   color: var(--color-foreground);
-  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-inter), -apple-system, "Inter", "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  /* ── Typography ─────────────────────────────────────────────── */
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--color-muted);
+  }
+  .page-title {
+    font-size: clamp(28px, 4vw, 36px); font-weight: 900;
+    letter-spacing: -1.2px; line-height: 1.1; color: var(--color-ink);
+    text-wrap: balance;
+  }
+  .card-title {
+    font-size: 17px; font-weight: 900; letter-spacing: -.4px; color: var(--color-ink);
+  }
+
+  /* ── Buttons ────────────────────────────────────────────────── */
+  .btn-primary, .btn-ghost, .btn-outline {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 14px; font-weight: 700; letter-spacing: -.2px;
+    border-radius: 100px; cursor: pointer; white-space: nowrap;
+    transition: background-color .15s, color .15s, border-color .15s, transform .1s;
+  }
+  .btn-primary {
+    background: var(--color-ink); color: #fff; border: none; padding: 11px 24px;
+  }
+  .btn-primary:hover { background: var(--color-ink-hover); }
+  .btn-primary:active { transform: scale(.97); }
+  .btn-ghost {
+    background: #fff; color: var(--color-ink);
+    border: 2px solid var(--color-line); padding: 9px 20px;
+  }
+  .btn-ghost:hover { border-color: var(--color-ink); }
+  .btn-outline {
+    background: #fff; color: var(--color-ink);
+    border: 2px solid var(--color-ink); padding: 9px 20px;
+  }
+  .btn-outline:hover { background: var(--color-ink); color: #fff; }
+  .btn-sm { font-size: 12px; padding: 6px 14px; }
+  .btn-ghost.btn-sm, .btn-outline.btn-sm { padding: 5px 13px; }
+  .btn-primary:disabled, .btn-ghost:disabled, .btn-outline:disabled { opacity: .3; cursor: not-allowed; transform: none; }
+
+  /* ── Cards ──────────────────────────────────────────────────── */
+  .card {
+    background: var(--color-surface); border: 1px solid var(--color-line);
+    border-radius: var(--radius-card); padding: 24px; min-width: 0;
+  }
+  .card-white {
+    background: #fff; border: 1px solid var(--color-line);
+    border-radius: var(--radius-card); min-width: 0;
+  }
+  .card-dark {
+    background: var(--color-ink); color: #fff;
+    border-radius: var(--radius-card-sm); padding: 18px 20px;
+  }
+  .card-bordered {
+    background: #fff; border: 2px solid var(--color-ink);
+    border-radius: var(--radius-card); overflow: hidden;
+  }
+
+  /* ── Chips, pills, tags ─────────────────────────────────────── */
+  .chip {
+    background: var(--color-surface); border: 1px solid var(--color-line);
+    border-radius: 100px; font-size: 12px; font-weight: 500; color: var(--color-muted);
+    padding: 6px 14px; cursor: pointer; text-align: left;
+    transition: background-color .15s, color .15s, border-color .15s;
+  }
+  .chip:hover { background: var(--color-ink); color: #fff; border-color: var(--color-ink); }
+
+  /* Status pill: outlined = in progress / attention, .is-filled = urgent or resolved */
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+    font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+    padding: 3px 11px; border-radius: 100px;
+    border: 2px solid var(--color-ink); color: var(--color-ink); background: #fff;
+  }
+  .status-pill.is-filled { background: var(--color-ink); color: #fff; }
+  .status-pill.is-muted { border-color: var(--color-line); color: var(--color-muted); background: var(--color-surface2); }
+  .status-pill.is-success { border-color: var(--color-success); background: var(--color-success); color: #fff; }
+
+  /* Department / category tag */
+  .dept-tag {
+    display: inline-flex; align-items: center; white-space: nowrap;
+    background: var(--color-surface2); color: var(--color-muted);
+    font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 100px; border: 1px solid var(--color-line);
+  }
+
+  /* ── Inputs ─────────────────────────────────────────────────── */
+  .input-shell {
+    background: #fff; border: 2px solid var(--color-ink);
+    border-radius: var(--radius-card); transition: box-shadow .2s;
+  }
+  .input-shell:focus-within { box-shadow: 0 0 0 4px rgba(10, 10, 10, .07); }
+  .field {
+    width: 100%; background: #fff; border: 2px solid var(--color-line);
+    border-radius: var(--radius-card-sm); padding: 8px 12px; font-size: 14px; color: var(--color-ink);
+    transition: border-color .15s;
+  }
+  .field:focus { outline: none; border-color: var(--color-ink); }
+  .field::placeholder { color: var(--color-muted2); }
+  .send-btn {
+    background: var(--color-ink); color: #fff; border: none; border-radius: 12px;
+    width: 40px; height: 40px; flex-shrink: 0; display: inline-flex;
+    align-items: center; justify-content: center; cursor: pointer; transition: background-color .15s;
+  }
+  .send-btn:hover { background: var(--color-ink-hover); }
+  .send-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+  /* ── Chat bubbles ───────────────────────────────────────────── */
+  .bubble-out {
+    background: var(--color-ink); color: #fff; border-radius: 18px;
+    border-bottom-right-radius: 4px; padding: 11px 15px; font-size: 14px; line-height: 1.6;
+  }
+  .bubble-in {
+    background: var(--color-surface); color: var(--color-ink); border: 1px solid var(--color-line);
+    border-radius: 18px; border-bottom-left-radius: 4px; padding: 11px 15px; font-size: 14px; line-height: 1.6;
+  }
+
+  /* ── Status indicators ──────────────────────────────────────── */
+  .dot-active {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--color-ink);
+    animation: pulse-dot 1.4s infinite;
+  }
+  .icon-spin { animation: spin 1s linear infinite; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .3; transform: scale(.6); }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dot-active, .icon-spin { animation: none; }
 }

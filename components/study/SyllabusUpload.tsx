@@ -18,7 +18,7 @@ interface Row {
   topics: string;
 }
 
-const input = 'w-full rounded-md border border-gray-200 bg-white px-2 py-1.5 text-sm focus:border-[#1B2A5A] focus:outline-none focus:ring-1 focus:ring-[#1B2A5A]';
+const input = 'w-full rounded-md border border-line bg-white px-2 py-1.5 text-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink';
 
 export function SyllabusUpload({ today, onSave, onClose }: {
   today: Date;
@@ -111,21 +111,21 @@ export function SyllabusUpload({ today, onSave, onClose }: {
         />
         <div className="space-y-4 px-5 py-4">
           <div className="grid grid-cols-1 sm:grid-cols-[160px_minmax(0,1fr)] gap-3">
-            <label className="text-xs text-gray-500">Course code
+            <label className="text-xs text-muted">Course code
               <input className={clsx(input, 'mt-1')} value={code} onChange={(e) => setCode(e.target.value)} placeholder="ACC 302" />
             </label>
-            <label className="text-xs text-gray-500">Course name
+            <label className="text-xs text-muted">Course name
               <input className={clsx(input, 'mt-1')} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Intermediate Financial Accounting" />
             </label>
           </div>
-          <p className="text-xs text-gray-500">If the code matches one of your Canvas courses, these deadlines merge into it and matching Canvas assignments pick up their weight and topics.</p>
+          <p className="text-xs text-muted">If the code matches one of your Canvas courses, these deadlines merge into it and matching Canvas assignments pick up their weight and topics.</p>
           {parsed.warnings.map((w) => (
-            <p key={w} className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{w}</p>
+            <p key={w} className="rounded-card-sm border-2 border-ink bg-white px-3 py-2 text-sm font-semibold text-ink">{w}</p>
           ))}
           <div className="overflow-x-auto -mx-5 px-5">
             <table className="w-full min-w-[680px] text-sm">
               <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500">
+                <tr className="text-left text-[11px] uppercase tracking-wider text-muted">
                   <th className="py-1.5 pr-2 font-semibold">Title</th>
                   <th className="py-1.5 pr-2 font-semibold">Type</th>
                   <th className="py-1.5 pr-2 font-semibold">Date</th>
@@ -147,7 +147,7 @@ export function SyllabusUpload({ today, onSave, onClose }: {
                     <td className="py-1 pr-2"><input aria-label="Weight" type="number" min={0} max={100} step={0.5} className={input} value={r.weight} onChange={(e) => update(i, { weight: e.target.value })} /></td>
                     <td className="py-1 pr-2"><input aria-label="Topics" className={input} value={r.topics} onChange={(e) => update(i, { topics: e.target.value })} /></td>
                     <td className="py-1">
-                      <button type="button" aria-label={`Remove ${r.title || 'row'}`} onClick={() => setRows((rs) => rs.filter((_, idx) => idx !== i))} className="h-8 w-8 rounded-md text-lg text-gray-400 hover:bg-gray-100 hover:text-red-600">×</button>
+                      <button type="button" aria-label={`Remove ${r.title || 'row'}`} onClick={() => setRows((rs) => rs.filter((_, idx) => idx !== i))} className="h-8 w-8 rounded-md text-lg text-muted hover:bg-surface2 hover:text-ink">×</button>
                     </td>
                   </tr>
                 ))}
@@ -161,7 +161,7 @@ export function SyllabusUpload({ today, onSave, onClose }: {
           >
             + Add a deadline
           </button>
-          {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
+          {error && <p className="text-sm font-bold text-ink" role="alert">{error}</p>}
         </div>
         <ModalFooter>
           <button type="button" className={btn.secondary} onClick={() => setStep('input')}>Back</button>
@@ -185,12 +185,12 @@ export function SyllabusUpload({ today, onSave, onClose }: {
           onDragLeave={() => setDrag(false)}
           onDrop={(e) => { e.preventDefault(); setDrag(false); handleFile(e.dataTransfer.files[0]); }}
           className={clsx(
-            'grid cursor-pointer justify-items-center gap-1 rounded-xl border-2 border-dashed px-4 py-7 text-center transition-colors',
-            drag ? 'border-[#1B2A5A] bg-blue-50' : 'border-gray-200 bg-gray-50 hover:border-gray-300',
+            'grid cursor-pointer justify-items-center gap-1 rounded-card border-2 border-dashed px-4 py-7 text-center transition-colors',
+            drag ? 'border-ink bg-surface' : 'border-line bg-white hover:border-ink',
           )}
         >
-          <span className="text-sm font-semibold text-gray-900">Drop a PDF, Word or text file here</span>
-          <span className="text-xs text-gray-500">or click to choose a file</span>
+          <span className="text-sm font-black tracking-[-.4px] text-ink">Drop a PDF, Word or text file here</span>
+          <span className="text-xs text-muted">or click to choose a file</span>
           <input
             ref={fileRef}
             type="file"
@@ -199,15 +199,15 @@ export function SyllabusUpload({ today, onSave, onClose }: {
             onChange={(e) => handleFile(e.target.files?.[0])}
           />
         </label>
-        <p className="text-center text-[11px] font-semibold uppercase tracking-widest text-gray-400">or paste it</p>
+        <p className="text-center text-[11px] font-semibold uppercase tracking-widest text-muted">or paste it</p>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={8}
           placeholder="Paste the schedule and grading sections of your syllabus"
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1B2A5A] focus:outline-none focus:ring-1 focus:ring-[#1B2A5A]"
+          className="w-full rounded-card-sm border border-line px-3 py-2 text-sm focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink"
         />
-        <p className="min-h-5 text-sm text-gray-500" role="status">{status}</p>
+        <p className="min-h-5 text-sm text-muted" role="status">{status}</p>
       </div>
       <ModalFooter>
         <button type="button" className={btn.secondary} onClick={() => setText(sampleSyllabus(today))}>Use a sample syllabus</button>
