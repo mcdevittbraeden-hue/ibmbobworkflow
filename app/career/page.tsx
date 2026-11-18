@@ -26,24 +26,23 @@ export default async function CareerPage() {
       {/* Nav */}
       <header className="bg-[#1B2A5A] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10 shadow-md">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center">
               <span className="text-[#1B2A5A] text-sm font-black">F</span>
             </div>
             <span className="font-bold text-lg">FriarAI</span>
-          </Link>
-          <span className="text-blue-300 hidden sm:block">›</span>
-          <span className="text-white font-semibold hidden sm:block">Career Development</span>
-          <nav className="hidden md:flex items-center gap-1 ml-4">
+          </div>
+          <nav className="hidden md:flex items-center gap-1">
             <Link href="/dashboard" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
               Dashboard
             </Link>
+            <span className="rounded-md bg-white/10 px-3 py-1.5 text-sm font-medium text-white">Career</span>
             <Link href="/campus" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
               Campus
             </Link>
           </nav>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-auto">
           <span className="text-blue-200 text-sm hidden sm:block">{session.user.email}</span>
           <span className="rounded-full bg-[#C5A900] px-2.5 py-0.5 text-xs font-semibold text-[#1B2A5A]">DEMO</span>
         </div>

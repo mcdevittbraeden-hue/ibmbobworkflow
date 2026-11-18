@@ -26,22 +26,24 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Top nav */}
       <header className="bg-[#1B2A5A] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10 shadow-md">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center">
-            <span className="text-[#1B2A5A] text-sm font-black">F</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center">
+              <span className="text-[#1B2A5A] text-sm font-black">F</span>
+            </div>
+            <span className="font-bold text-lg">FriarAI</span>
           </div>
-          <span className="font-bold text-lg">FriarAI</span>
+          <nav className="hidden md:flex items-center gap-1">
+            <span className="rounded-md bg-white/10 px-3 py-1.5 text-sm font-medium text-white">Dashboard</span>
+            <Link href="/career" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
+              Career
+            </Link>
+            <Link href="/campus" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
+              Campus
+            </Link>
+          </nav>
         </div>
-        <nav className="hidden md:flex items-center gap-1">
-          <span className="rounded-md bg-white/10 px-3 py-1.5 text-sm font-medium text-white">Dashboard</span>
-          <Link href="/career" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
-            Career
-          </Link>
-          <Link href="/campus" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
-            Campus
-          </Link>
-        </nav>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-auto">
           <span className="text-blue-200 text-sm hidden sm:block">{session.user.email}</span>
           <span className="rounded-full bg-[#C5A900] px-2.5 py-0.5 text-xs font-semibold text-[#1B2A5A]">
             DEMO
