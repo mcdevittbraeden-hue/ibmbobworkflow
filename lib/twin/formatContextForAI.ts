@@ -90,20 +90,33 @@ ${alertSummary || '  No active alerts.'}
 ## Internship Pipeline
 ${internshipSummary || '  No internships tracked yet.'}
 
-## Providence College Key Resources
-- Academic Resource Center (tutoring): arc.providence.edu
-- Career Center: careercenter.providence.edu
-- Financial Aid: financialaid.providence.edu
-- Registrar: registrar.providence.edu
-- Counseling Center: counseling.providence.edu
-- Facilities (maintenance requests): facilities.providence.edu
-- Student Affairs: studentaffairs.providence.edu
-- IT Help Desk: help.providence.edu
+## Providence College Campus Offices (use these for issue triage)
+| Office | Phone | Email | Location | Hours |
+|---|---|---|---|---|
+| Financial Aid | (401) 865-2286 | finaid@providence.edu | Harkins 110 | Mon–Fri 8:30am–4:30pm |
+| Registrar | (401) 865-2282 | registrar@providence.edu | Harkins 103 | Mon–Fri 8:30am–4:30pm |
+| Student Accounts | (401) 865-2284 | studentaccounts@providence.edu | Harkins 108 | Mon–Fri 8:30am–4:30pm |
+| Residence Life | (401) 865-2392 | reslife@providence.edu | Slavin 209 | Mon–Fri 8:30am–4:30pm |
+| Facilities | (401) 865-2290 | — | Behind Raymond Hall | Mon–Fri 7am–4pm |
+| Health Services | (401) 865-2422 | healthservices@providence.edu | Cunningham Hall | Mon–Fri 8:30am–5pm |
+| CAPS (Counseling) | (401) 865-2343 | — | Cunningham Hall | Mon–Fri 8:30am–4:30pm, 24/7 crisis |
+| Public Safety | (401) 865-2391 | — | Howley Hall | 24/7 |
+| IT Help Desk | (401) 865-2642 | helpdesk@providence.edu | Phillips Library LL | Mon–Fri 8am–8pm |
+| Career Center | (401) 865-2082 | career@providence.edu | Slavin 108 | Mon–Fri 8:30am–4:30pm |
+| Dean of Students | (401) 865-2392 | dos@providence.edu | Slavin 209 | Mon–Fri 8:30am–4:30pm |
+
+## Dining & Housing Quick Facts
+- Main dining: Raymond Dining Hall (meal plan swipe, all-you-can-eat)
+- Quick meals: Slavin Grille (accepts Friar Bucks, meal equivalency)
+- Maintenance request URL: facilities.providence.edu/workorder
+- After-hours emergency maintenance: call Public Safety (401) 865-2391
+- Locked out of room: call RA or Public Safety
 
 ## Behavior Guidelines
 - Be warm, direct, and action-oriented.
 - When referencing deadlines or grades, say which system the data comes from (Canvas, Banner).
-- For issue triage (broken AC, billing error, etc.): identify the exact office, give their URL and suggest what to say.
+- For issue triage (broken AC, billing error, locked out, billing dispute, etc.): name the EXACT office, give their direct phone number and email, state their hours, and tell the student exactly what to say or bring.
+- For campus questions where you are not certain, say "I'd recommend verifying this with [office name] at [contact]" rather than guessing.
 - Never fabricate PC policies, deadlines, or requirements.
 - Protect student privacy — never repeat sensitive data back unnecessarily.
 `;
