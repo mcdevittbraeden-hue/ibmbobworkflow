@@ -92,7 +92,7 @@ ${internshipSummary || '  No internships tracked yet.'}
 
 ## Providence College Key Resources
 - Academic Resource Center (tutoring): arc.providence.edu
-- Career Education: career.providence.edu
+- Career Center: careercenter.providence.edu
 - Financial Aid: financialaid.providence.edu
 - Registrar: registrar.providence.edu
 - Counseling Center: counseling.providence.edu

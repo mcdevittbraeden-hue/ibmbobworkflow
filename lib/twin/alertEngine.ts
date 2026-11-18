@@ -144,7 +144,7 @@ export function runAlertEngine(
       message: `${internship.role} at ${internship.company} — deadline ${days <= 0 ? 'today' : `in ${days} day${days !== 1 ? 's' : ''}`}. Status: ${internship.status.replace('_', ' ')}.`,
       suggestedAction: days <= 3
         ? 'Apply immediately — this deadline is 3 days or less away.'
-        : 'Start your application soon. Visit Career Education if you need help tailoring your resume.',
+        : 'Start your application soon. Visit Career Center if you need help tailoring your resume.',
       link: internship.applyUrl,
       source: 'career',
     });

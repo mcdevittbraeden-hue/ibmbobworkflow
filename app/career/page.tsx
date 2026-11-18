@@ -5,7 +5,8 @@ import { getBannerData } from '@/lib/integrations/banner';
 import { InternshipCard } from '@/components/InternshipCard';
 import { ResumeReview } from '@/components/ResumeReview';
 import { CareerChat } from '@/components/CareerChat';
-import { FadeUp, StaggerList, StaggerItem, ScaleIn } from '@/components/Animate';
+import { JobDiscovery } from '@/components/JobDiscovery';
+import { FadeUp, StaggerList, StaggerItem } from '@/components/Animate';
 import Link from 'next/link';
 
 export default async function CareerPage() {
@@ -155,12 +156,19 @@ export default async function CareerPage() {
           </FadeUp>
         </div>
 
+        {/* AI Job Discovery */}
+        <FadeUp delay={0.1} className="mt-8">
+          <div className="rounded-xl bg-white border border-gray-200 p-6 shadow-sm">
+            <JobDiscovery />
+          </div>
+        </FadeUp>
+
         {/* PC Career resources footer */}
         <div className="mt-8 rounded-xl bg-[#1B2A5A] p-6 text-white">
           <h2 className="font-semibold mb-4">🏛 Providence College Career Resources</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { name: 'Career Education Office', desc: 'Resume reviews, mock interviews, job fairs', url: 'https://career.providence.edu' },
+              { name: 'Career Center', desc: 'Resume reviews, mock interviews, job fairs', url: 'https://careercenter.providence.edu' },
               { name: 'Handshake', desc: 'Job & internship postings curated for PC students', url: 'https://app.joinhandshake.com' },
               { name: 'PC Alumni Network', desc: 'Connect with Friars working in your target industry', url: 'https://alumni.providence.edu' },
             ].map((r) => (

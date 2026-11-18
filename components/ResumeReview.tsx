@@ -54,12 +54,12 @@ export function ResumeReview({ sections }: { sections: ResumeSection[] }) {
 
       {/* Book appointment CTA */}
       <a
-        href="https://career.providence.edu"
+        href="https://careercenter.providence.edu"
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#1B2A5A] px-4 py-3 text-sm font-semibold text-[#1B2A5A] hover:bg-[#1B2A5A] hover:text-white transition-colors"
       >
-        📅 Book a Resume Review at Career Education
+        📅 Book a Resume Review at Career Center
       </a>
     </div>
   );
