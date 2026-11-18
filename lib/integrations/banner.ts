@@ -14,9 +14,6 @@ import type { BannerData, BannerDegreeAudit, BannerRegistration } from '@/types/
 const ETHOS_BASE = process.env.ETHOS_API_URL ?? '';
 const ETHOS_KEY = process.env.ETHOS_API_KEY ?? '';
 
-const cache = new Map<string, { data: BannerData; expiresAt: number }>();
-const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes (SIS data changes less often)
-
 async function getEthosToken(): Promise<string> {
   const res = await fetch(`${ETHOS_BASE}/auth`, {
     method: 'POST',
@@ -38,13 +35,8 @@ async function fetchEthos<T>(endpoint: string, token: string): Promise<T> {
 }
 
 export async function getBannerData(studentId: string): Promise<BannerData> {
-  const cached = cache.get(studentId);
-  if (cached && cached.expiresAt > Date.now()) return cached.data;
-
   if (!ETHOS_BASE) {
-    const mock = getMockBannerData(studentId);
-    cache.set(studentId, { data: mock, expiresAt: Date.now() + CACHE_TTL_MS });
-    return mock;
+    return getMockBannerData(studentId);
   }
 
   const token = await getEthosToken();
@@ -53,9 +45,7 @@ export async function getBannerData(studentId: string): Promise<BannerData> {
     fetchEthos<BannerRegistration[]>(`/registration-history?student=${studentId}`, token),
   ]);
 
-  const data: BannerData = { degreeAudit: audit, registrationHistory: history, fetchedAt: new Date().toISOString() };
-  cache.set(studentId, { data, expiresAt: Date.now() + CACHE_TTL_MS });
-  return data;
+  return { degreeAudit: audit, registrationHistory: history, fetchedAt: new Date().toISOString() };
 }
 
 // ─── Mock Data ──────────────────────────────────────────────────────────────

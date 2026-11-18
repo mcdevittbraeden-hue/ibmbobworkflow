@@ -43,9 +43,17 @@ export function formatContextForAI(ctx: StudentContext): string {
     .map((a) => `  - [${a.severity.toUpperCase()}] ${a.title}: ${a.message}`)
     .join('\n');
 
+  const { career } = ctx;
+  const careerProfile = career.profile;
+
+  const internshipSummary = careerProfile.internships
+    .slice(0, 4)
+    .map((i) => `  - ${i.company} (${i.role}) — ${i.status.replace('_', ' ')}, ${i.matchScore}% match${i.deadline ? `, deadline in ${Math.ceil((new Date(i.deadline).getTime() - Date.now()) / 86400000)}d` : ''}`)
+    .join('\n');
+
   return `You are FriarAI, the digital twin and AI success coach for ${name} at Providence College.
-You have real-time access to ${name}'s academic data. Use it to give personalized, grounded advice.
-Never give generic advice when you have specific data. Always reference the student's actual courses, grades, and deadlines.
+You have real-time access to ${name}'s academic AND career data. Use it to give personalized, grounded advice.
+Never give generic advice when you have specific data. Always reference the student's actual courses, grades, deadlines, and career goals.
 If asked about something outside your data, say so clearly and suggest the right campus resource.
 
 ## Student Profile
@@ -71,6 +79,16 @@ ${calEvents || '  No events found.'}
 
 ## Active Alerts (Proactive Issues)
 ${alertSummary || '  No active alerts.'}
+
+## Career Profile
+- Target Roles: ${careerProfile.targetRoles.join(', ')}
+- Target Industries: ${careerProfile.targetIndustries.join(', ')}
+- Skills on Resume: ${careerProfile.skills.join(', ')}
+- Resume Last Updated: ${careerProfile.resumeLastUpdated ? new Date(careerProfile.resumeLastUpdated).toLocaleDateString() : 'Unknown'}
+- Resume Weak Spots: ${careerProfile.resumeSections.filter(s => s.strength !== 'strong').map(s => s.section).join(', ') || 'None'}
+
+## Internship Pipeline
+${internshipSummary || '  No internships tracked yet.'}
 
 ## Providence College Key Resources
 - Academic Resource Center (tutoring): arc.providence.edu

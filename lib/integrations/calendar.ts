@@ -12,18 +12,10 @@ import type { CalendarData, CalendarEvent } from '@/types/calendar';
 
 const GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
 
-const cache = new Map<string, { data: CalendarData; expiresAt: number }>();
-const CACHE_TTL_MS = 5 * 60 * 1000;
-
 export async function getCalendarData(studentId: string, accessToken: string): Promise<CalendarData> {
-  const cached = cache.get(studentId);
-  if (cached && cached.expiresAt > Date.now()) return cached.data;
-
   // Use mock in dev if token looks like a placeholder
-  if (!accessToken || accessToken === 'mock' || process.env.NODE_ENV === 'development' && !process.env.AUTH_MICROSOFT_ENTRA_ID_ID) {
-    const mock = getMockCalendarData();
-    cache.set(studentId, { data: mock, expiresAt: Date.now() + CACHE_TTL_MS });
-    return mock;
+  if (!accessToken || accessToken === 'mock' || !process.env.AUTH_MICROSOFT_ENTRA_ID_ID) {
+    return getMockCalendarData();
   }
 
   const start = new Date().toISOString();
@@ -61,9 +53,7 @@ export async function getCalendarData(studentId: string, accessToken: string): P
     organizer: e.organizer?.emailAddress.name,
   }));
 
-  const data: CalendarData = { events, fetchedAt: new Date().toISOString() };
-  cache.set(studentId, { data, expiresAt: Date.now() + CACHE_TTL_MS });
-  return data;
+  return { events, fetchedAt: new Date().toISOString() };
 }
 
 // ─── Mock Data ──────────────────────────────────────────────────────────────

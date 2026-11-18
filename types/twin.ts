@@ -5,7 +5,8 @@ export type AlertType =
   | 'degree_requirement_gap'
   | 'scheduling_conflict'
   | 'missing_submission'
-  | 'academic_standing';
+  | 'academic_standing'
+  | 'application_deadline';
 
 export interface Alert {
   id: string;
@@ -15,7 +16,7 @@ export interface Alert {
   message: string;
   suggestedAction: string;
   link?: string;
-  source: 'canvas' | 'banner' | 'calendar';
+  source: 'canvas' | 'banner' | 'calendar' | 'career';
 }
 
 export interface StudentContext {
@@ -25,6 +26,7 @@ export interface StudentContext {
   canvas: import('./canvas').CanvasData;
   banner: import('./banner').BannerData;
   calendar: import('./calendar').CalendarData;
+  career: import('./career').CareerData;
   alerts: Alert[];
   generatedAt: string;
 }

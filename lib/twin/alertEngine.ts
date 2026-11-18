@@ -9,6 +9,7 @@ import type { Alert, AlertSeverity } from '@/types/twin';
 import type { CanvasData } from '@/types/canvas';
 import type { BannerData } from '@/types/banner';
 import type { CalendarData } from '@/types/calendar';
+import type { CareerData } from '@/types/career';
 
 function id(type: string, ref: string | number) {
   return `${type}-${ref}`;
@@ -17,7 +18,8 @@ function id(type: string, ref: string | number) {
 export function runAlertEngine(
   canvas: CanvasData,
   banner: BannerData,
-  calendar: CalendarData
+  calendar: CalendarData,
+  career: CareerData
 ): Alert[] {
   const alerts: Alert[] = [];
   const now = Date.now();
@@ -126,6 +128,25 @@ export function runAlertEngine(
       message: 'You are currently on academic warning. Your GPA needs improvement.',
       suggestedAction: 'Meet with your academic advisor to create a plan to improve your GPA this semester.',
       source: 'banner',
+    });
+  }
+
+  // ── 5. Internship application deadlines ──────────────────────────────────
+  for (const internship of career.profile.applicationDeadlineSoon) {
+    if (!internship.deadline || internship.status === 'accepted') continue;
+    const days = Math.ceil((new Date(internship.deadline).getTime() - now) / (1000 * 60 * 60 * 24));
+    const severity: AlertSeverity = days <= 3 ? 'high' : 'medium';
+    alerts.push({
+      id: id('app-deadline', internship.id),
+      type: 'application_deadline',
+      severity,
+      title: `Application deadline: ${internship.company}`,
+      message: `${internship.role} at ${internship.company} — deadline ${days <= 0 ? 'today' : `in ${days} day${days !== 1 ? 's' : ''}`}. Status: ${internship.status.replace('_', ' ')}.`,
+      suggestedAction: days <= 3
+        ? 'Apply immediately — this deadline is 3 days or less away.'
+        : 'Start your application soon. Visit Career Education if you need help tailoring your resume.',
+      link: internship.applyUrl,
+      source: 'career',
     });
   }
 

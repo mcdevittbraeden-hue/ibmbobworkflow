@@ -1,6 +1,3 @@
-export const instant = false;
-
-import { connection } from 'next/server';
 import { signIn } from '@/lib/auth';
 
 export default function LoginPage() {

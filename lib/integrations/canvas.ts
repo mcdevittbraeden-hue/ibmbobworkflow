@@ -14,10 +14,6 @@ import type { CanvasData, CanvasCourse, CanvasAssignment, CanvasGrade } from '@/
 
 const CANVAS_BASE = process.env.CANVAS_API_URL ?? '';
 
-// Simple in-memory cache: studentId → { data, expiresAt }
-const cache = new Map<string, { data: CanvasData; expiresAt: number }>();
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
 async function fetchCanvas<T>(endpoint: string, accessToken: string): Promise<T> {
   const res = await fetch(`${CANVAS_BASE}/api/v1${endpoint}`, {
     headers: {
@@ -33,17 +29,9 @@ async function fetchCanvas<T>(endpoint: string, accessToken: string): Promise<T>
 }
 
 export async function getCanvasData(studentId: string, accessToken: string): Promise<CanvasData> {
-  // Return cached data if fresh
-  const cached = cache.get(studentId);
-  if (cached && cached.expiresAt > Date.now()) {
-    return cached.data;
-  }
-
   // Use mock data in development when no Canvas URL is configured
   if (!CANVAS_BASE) {
-    const mock = getMockCanvasData();
-    cache.set(studentId, { data: mock, expiresAt: Date.now() + CACHE_TTL_MS });
-    return mock;
+    return getMockCanvasData();
   }
 
   const [rawCourses, rawAssignments] = await Promise.all([
@@ -62,15 +50,12 @@ export async function getCanvasData(studentId: string, accessToken: string): Pro
       finalScore: c.currentScore ?? 0,
     }));
 
-  const data: CanvasData = {
+  return {
     courses: rawCourses,
     assignments: rawAssignments,
     grades,
     fetchedAt: new Date().toISOString(),
   };
-
-  cache.set(studentId, { data, expiresAt: Date.now() + CACHE_TTL_MS });
-  return data;
 }
 
 // ─── Mock Data ──────────────────────────────────────────────────────────────
