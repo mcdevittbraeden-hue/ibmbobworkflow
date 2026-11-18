@@ -6,7 +6,8 @@ export type AlertType =
   | 'scheduling_conflict'
   | 'missing_submission'
   | 'academic_standing'
-  | 'application_deadline';
+  | 'application_deadline'
+  | 'study_checkin';
 
 export interface Alert {
   id: string;

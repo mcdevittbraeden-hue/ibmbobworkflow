@@ -46,7 +46,16 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   );
 }
 
-export function Chat({ initialContext }: { initialContext?: string }) {
+export function Chat({
+  initialContext,
+  studyContext,
+  quickPrompts = QUICK_PROMPTS,
+}: {
+  initialContext?: string;
+  /** Extra student-reported context (e.g. Study Coach check-ins) added to the AI prompt. */
+  studyContext?: string;
+  quickPrompts?: string[];
+}) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -54,7 +63,10 @@ export function Chat({ initialContext }: { initialContext?: string }) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Scroll only the message list (not the page), and not on first mount, so
+    // pages with the chat below the fold don't jump to it on load.
+    const list = messagesEndRef.current?.parentElement;
+    if (list && messages.length) list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
   }, [messages, isStreaming]);
 
   async function sendMessage(text: string) {
@@ -74,7 +86,7 @@ export function Chat({ initialContext }: { initialContext?: string }) {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: updatedMessages }),
+        body: JSON.stringify({ messages: updatedMessages, studyContext }),
       });
 
       if (!res.ok) throw new Error('Chat request failed');
@@ -139,7 +151,7 @@ export function Chat({ initialContext }: { initialContext?: string }) {
             <p className="text-gray-900 font-semibold">Hi! I&apos;m FriarAI</p>
             <p className="text-gray-500 text-sm mt-1">Your personal Providence College success coach.</p>
             <div className="mt-5 flex flex-col gap-2">
-              {QUICK_PROMPTS.map((p) => (
+              {quickPrompts.map((p) => (
                 <button
                   key={p}
                   onClick={() => sendMessage(p)}

@@ -1,5 +1,6 @@
 import type { Alert } from '@/types/twin';
 import clsx from 'clsx';
+import Link from 'next/link';
 
 const severityConfig = {
   high: {
@@ -43,7 +44,12 @@ export function AlertCard({ alert }: { alert: Alert }) {
           <p className="mt-1 text-xs text-gray-500">
             💡 {alert.suggestedAction}
           </p>
-          {alert.link && (
+          {alert.link?.startsWith('/') && (
+            <Link href={alert.link} className="mt-2 inline-block text-xs font-medium text-[#1B2A5A] underline">
+              Check in with Study Coach →
+            </Link>
+          )}
+          {alert.link && !alert.link.startsWith('/') && (
             <a
               href={alert.link}
               target="_blank"

@@ -32,8 +32,10 @@ export async function POST(req: Request) {
 
   const session = getDemoSession();
 
-  const body = await req.json() as { messages: ChatMessage[] };
+  const body = await req.json() as { messages: ChatMessage[]; studyContext?: string };
   const { messages } = body;
+  // Study Coach check-ins live in the student's browser; the page sends a short summary.
+  const studyContext = typeof body.studyContext === 'string' ? body.studyContext.slice(0, 4000).trim() : '';
 
   if (!messages?.length) {
     return NextResponse.json({ error: 'No messages provided' }, { status: 400 });
@@ -47,7 +49,9 @@ export async function POST(req: Request) {
     session.user.accessToken
   );
 
-  const systemPrompt = formatContextForAI(context);
+  const systemPrompt = formatContextForAI(context) + (studyContext
+    ? `\n## Study Coach (self-reported by the student in FriarAI)\nConfidence ratings, weak topics and the study plan below come from the student's own check-ins. Use them to explain weak topics, quiz the student and plan their next session.\n${studyContext}\n`
+    : '');
 
   // Keep last 20 messages to control token cost
   const trimmedHistory = messages.slice(-20);

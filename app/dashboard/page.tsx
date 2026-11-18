@@ -34,6 +34,9 @@ export default async function DashboardPage() {
         </div>
         <nav className="hidden md:flex items-center gap-1">
           <span className="rounded-md bg-white/10 px-3 py-1.5 text-sm font-medium text-white">Dashboard</span>
+          <Link href="/study" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
+            Study Coach
+          </Link>
           <Link href="/career" className="rounded-md px-3 py-1.5 text-sm font-medium text-blue-200 hover:bg-white/10 hover:text-white transition-colors">
             Career
           </Link>

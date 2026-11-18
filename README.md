@@ -9,6 +9,7 @@
 - **AI Chat** — Every response from GPT-4o is grounded in the student's real data, not generic advice
 - **Issue Triage** — Describe any campus problem in plain English → routed to the exact right office
 - **Degree Progress** — Visual breakdown of requirements vs. completion
+- **Study Coach** — Upload a syllabus → study calendar, "how do you feel about this exam?" check-ins, when-to-start and what-to-study recommendations, academic risk scores, alerts and study habits (`/study`)
 - **Providence College SSO** — Students sign in with their @providence.edu Microsoft account
 
 ## Local Development Setup
@@ -119,6 +120,50 @@ friarai/
 
 ---
 
+## Step 3: Study Coach (Student Success)
+
+`/study` turns the student's Canvas deadlines and uploaded syllabi into a study plan that adapts to how they feel about each exam.
+
+**What a student gets**
+
+1. **Calendar breakdown.** Canvas assignments appear automatically. When a student uploads a syllabus (PDF, Word, text or pasted), FriarAI pulls out every exam, quiz, paper and project with its date, grade weight and topics. A syllabus item that matches a Canvas assignment upgrades it instead of duplicating it. The student reviews everything before it's saved.
+2. **Check-ins.** 14, 7, 3 and 1 day before each exam, paper or project, FriarAI asks: "How do you feel about Exam 2?" The student rates overall confidence (1–5) and each topic, and can add topics if Canvas didn't list them. Exams 3–7 days out also show a check-in alert on the dashboard.
+3. **When to start and what to study.** For example: "Start 12 days before (Fri, Nov 13), study *Deferred taxes* first." Weaker topics get more sessions, earlier. The last session is always a full review. Papers and projects follow phases (outline → draft → revise → proofread).
+4. **Academic risk.** Each deadline gets a 0–100 score (On track / Watch / At risk) with plain reasons, such as "rated 2/5", "worth 25%", "ideal start was 5 days ago" or "3 other deadlines within 3 days".
+5. **Alerts.** In-page alerts, browser notifications while open, and **Add to calendar**: an `.ics` file with every session, deadline and check-in, each with a reminder (Outlook / M365, Google, Apple).
+6. **Study habits.** Sessions are balanced across courses under a daily limit (2–4 hours). In a crunch week, less urgent sessions are shortened and the student is told why. Habit tips adapt, e.g. "Get help on ACC 302 this week" when confidence is low.
+7. **AI coach.** The Study Coach chat sends a summary of check-ins, weak topics and next sessions to `/api/chat` (`studyContext`), so GPT-4o can quiz the student on exactly what they're weak at.
+
+**How it's built**
+
+| Path | Purpose |
+|---|---|
+| `app/study/page.tsx` | Page; loads Canvas data from the twin |
+| `components/study/` | Client UI: `StudyCoach`, `CheckinDialog`, `PlanDetail`, `SyllabusUpload`, `StudyCalendar` |
+| `app/api/syllabus/route.ts` | Syllabus → deadlines. Uses GPT-4o when `OPENAI_API_KEY` is set, otherwise (or on failure) the offline parser |
+| `lib/studyCoach/riskEngine.ts` | Pure logic: lead days, topic priority, risk score, check-in schedule, load balancing, habits, AI summary |
+| `lib/studyCoach/syllabusParser.ts` | Offline rule-based syllabus parser |
+| `lib/studyCoach/courses.ts` | Canvas → Study Coach courses; merges syllabi and Canvas refreshes without losing check-ins |
+| `lib/studyCoach/calendarExport.ts` | `.ics` export with reminders |
+| `lib/studyCoach/studyAlerts.ts` | Study alerts + browser notifications |
+| `lib/studyCoach/storage.ts` | Check-ins and settings in `localStorage` (swap for a database later) |
+| `tests/studyCoach.test.ts` | `npm test` (Node's built-in runner, no extra dependencies) |
+
+**Tuning the recommendations** (all in `riskEngine.ts`):
+
+```
+lead days = baseline (exam 7, final 10, quiz 3, paper 10, project 14)
+          × (1 + (3 − confidence) × 0.25)      # confidence 1 → ×1.5, 5 → ×0.5
+          × 1.35 if ≥ 25% of grade (× 1.15 if ≥ 15%)
+          + 1 per other deadline within 3 days (max 3), clamped to 1–21
+topic priority = 6 − topic rating (unrated = 3); sessions handed out weakest-first
+risk ≥ 55 = At risk, ≥ 35 = Watch
+```
+
+**Limits / next steps:** check-ins live in the browser until FriarAI has a database. Browser notifications only fire while the tab is open (the `.ics` reminders cover the rest; Web Push would need a service worker + backend). Tutoring hours and office links should come from official PC sources, not be hard-coded.
+
+---
+
 ## Team Branch Strategy
 
 | Branch | Purpose |
@@ -130,6 +175,7 @@ friarai/
 | `feat/twin-engine` | Digital Twin Engine |
 | `feat/chat-ui` | AI chat interface |
 | `feat/dashboard` | Dashboard UI |
+| `feat/study-coach` | Step 3: Study Coach (academic risk, syllabus → study plan) |
 
 ---
 

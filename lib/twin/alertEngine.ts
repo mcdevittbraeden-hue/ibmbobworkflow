@@ -10,6 +10,7 @@ import type { CanvasData } from '@/types/canvas';
 import type { BannerData } from '@/types/banner';
 import type { CalendarData } from '@/types/calendar';
 import type { CareerData } from '@/types/career';
+import { detectType } from '@/lib/studyCoach/syllabusParser';
 
 function id(type: string, ref: string | number) {
   return `${type}-${ref}`;
@@ -64,6 +65,28 @@ export function runAlertEngine(
         source: 'canvas',
       });
     }
+  }
+
+  // ── 1b. Study Coach check-ins (exams, papers, projects 3–7 days out) ─────
+  // Deadlines inside 48h already get an urgent alert above, so this only
+  // nudges for prep-heavy work far enough out to still plan for.
+  for (const assignment of canvas.assignments) {
+    if (!assignment.dueAt || assignment.submittedAt) continue;
+    const type = detectType(assignment.name);
+    if (!type || type === 'homework') continue;
+    const days = Math.ceil((new Date(assignment.dueAt).getTime() - now) / (1000 * 60 * 60 * 24));
+    if (days < 3 || days > 7) continue;
+    alerts.push({
+      id: id('study-checkin', assignment.id),
+      type: 'study_checkin',
+      // An exam within a week with no study plan deserves attention.
+      severity: type === 'exam' || type === 'final' ? 'medium' : 'low',
+      title: `How do you feel about ${assignment.name}?`,
+      message: `${assignment.courseName} · due in ${days} days. A 30-second check-in tells FriarAI when to start studying and which topics to focus on.`,
+      suggestedAction: 'Rate your confidence in Study Coach to get a day-by-day plan.',
+      link: '/study',
+      source: 'canvas',
+    });
   }
 
   // ── 2. Grades at risk (below 70%) ────────────────────────────────────────
