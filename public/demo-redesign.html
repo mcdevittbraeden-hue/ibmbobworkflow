@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Relay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #f9f9f8;
+  --white:        #ffffff;
+  --surface:      #f4f4f3;
+  --surface-2:    #ebebea;
+  --surface-3:    #e2e2e0;
+  --border:       #e8e8e6;
+  --border-mid:   #d4d4d0;
+  --border-strong:#b0b0aa;
+  --text:         #111110;
+  --muted:        #6b6b68;
+  --muted-2:      #a0a09c;
+  --muted-3:      #c8c8c4;
+  --black:        #111110;
+  --white-pure:   #ffffff;
+
+  /* Status tints — very muted */
+  --tint-green:   #f0faf4;
+  --tint-green-b: #c3e6cf;
+  --tint-green-t: #1e7e3e;
+  --tint-blue:    #f0f6ff;
+  --tint-blue-b:  #b8d4f8;
+  --tint-blue-t:  #1a5fbe;
+  --tint-amber:   #fffbf0;
+  --tint-amber-b: #f5dfa0;
+  --tint-amber-t: #8a6200;
+
+  --r:    12px;
+  --r-sm: 8px;
+  --r-xs: 6px;
+  --font: 'Inter', -apple-system, 'Segoe UI', system-ui, sans-serif;
+}
+
+html, body {
+  height: 100%; background: var(--bg); color: var(--text);
+  font-family: var(--font);
+  font-size: 13.5px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  font-feature-settings: "cv01","cv02","cv03","cv04","cv05";
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 10px; }
+
+/* ═══════════════════════════════════════
+   SHELL
+═══════════════════════════════════════ */
+.shell { display: flex; height: 100vh; overflow: hidden; }
+
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
+.sidebar {
+  width: 52px;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 14px 0 16px;
+  flex-shrink: 0; z-index: 10;
+}
+.sidebar-logo {
+  width: 28px; height: 28px;
+  background: var(--black); border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 900; color: #fff;
+  letter-spacing: -.3px;
+  margin-bottom: 20px; flex-shrink: 0;
+}
+.sidebar-nav { display: flex; flex-direction: column; gap: 1px; width: 100%; padding: 0 8px; flex: 1; }
+.sidebar-icon {
+  width: 36px; height: 36px; border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--muted-2);
+  transition: background .12s, color .12s, transform .1s;
+}
+.sidebar-icon:hover { background: var(--surface); color: var(--muted); }
+.sidebar-icon.active { background: var(--surface-2); color: var(--black); }
+.sidebar-icon svg { width: 16px; height: 16px; stroke-width: 1.75; fill: none; stroke: currentColor; }
+.sidebar-sep { width: 20px; height: 1px; background: var(--border); margin: 8px auto; }
+.sidebar-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--surface-2); border: 1.5px solid var(--border-mid);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9.5px; font-weight: 700; color: var(--muted); letter-spacing: -.2px;
+}
+
+/* ═══════════════════════════════════════
+   LIST PANEL
+═══════════════════════════════════════ */
+.list-panel {
+  width: 268px;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
+}
+.list-header {
+  padding: 14px 14px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.list-title { font-size: 12.5px; font-weight: 700; letter-spacing: -.1px; color: var(--black); }
+.new-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px;
+  background: var(--black); color: #fff; border: none;
+  font-size: 17px; font-weight: 300; line-height: 1;
+  border-radius: 6px; cursor: pointer;
+  transition: background .12s, transform .18s cubic-bezier(.34,1.56,.64,1);
+}
+.new-btn:hover { background: #2a2a28; transform: rotate(90deg) scale(1.08); }
+.new-btn:active { transform: rotate(90deg) scale(.93); }
+
+/* Search */
+.list-search {
+  padding: 9px 10px 8px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.search-wrap {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-xs); padding: 6px 10px;
+}
+.search-wrap svg { width: 13px; height: 13px; color: var(--muted-2); flex-shrink: 0; }
+.search-wrap input {
+  background: none; border: none; outline: none;
+  font-size: 12px; color: var(--text); font-family: var(--font); width: 100%;
+}
+.search-wrap input::placeholder { color: var(--muted-2); }
+
+/* Filter tabs */
+.filter-row {
+  display: flex; padding: 7px 10px 0; gap: 2px; flex-shrink: 0;
+}
+.ftab {
+  font-size: 11.5px; font-weight: 500; padding: 3px 9px;
+  border-radius: 20px; cursor: pointer; color: var(--muted);
+  transition: background .12s, color .12s;
+}
+.ftab.on { background: var(--surface-2); color: var(--black); font-weight: 600; }
+
+.case-list { flex: 1; overflow-y: auto; padding: 5px 6px; }
+.case-item {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 9px 10px; cursor: pointer; border-radius: var(--r-sm);
+  transition: background .1s; position: relative;
+}
+.case-item:hover { background: var(--surface); }
+.case-item.active { background: var(--surface-2); }
+.ci-dot-wrap { padding-top: 5px; flex-shrink: 0; }
+.case-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+}
+.dot-active  { background: var(--black); animation: pulse 1.8s ease-in-out infinite; }
+.dot-replied { background: var(--black); }
+.dot-resolved{ background: var(--muted-3); }
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:.3; transform:scale(.55); }
+}
+.case-item-body { flex: 1; min-width: 0; }
+.case-item-title {
+  font-size: 12.5px; font-weight: 600; color: var(--black);
+  margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  letter-spacing: -.1px;
+}
+.case-item-sub {
+  font-size: 11.5px; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ci-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.case-item-time { font-size: 10.5px; color: var(--muted-2); }
+.ci-badge {
+  font-size: 9.5px; font-weight: 600; letter-spacing: .01em;
+  padding: 2px 7px; border-radius: 20px;
+}
+.ci-badge-active   { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border-mid); }
+.ci-badge-replied  { background: var(--black); color: #fff; }
+.ci-badge-resolved { background: var(--surface); color: var(--muted-2); border: 1px solid var(--border); }
+
+/* ═══════════════════════════════════════
+   CONTENT
+═══════════════════════════════════════ */
+.content {
+  flex: 1; display: flex; flex-direction: column;
+  background: var(--white); overflow: hidden; position: relative;
+}
+
+/* ═══════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════ */
+.empty-state {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 48px 32px; gap: 0;
+}
+.empty-mark {
+  width: 48px; height: 48px; background: var(--surface-2);
+  border: 1px solid var(--border-mid);
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 20px;
+}
+.empty-title {
+  font-size: 15px; font-weight: 700; letter-spacing: -.35px;
+  margin-bottom: 7px; color: var(--black);
+}
+.empty-sub {
+  font-size: 13px; color: var(--muted); max-width: 240px; line-height: 1.65;
+  margin-bottom: 24px;
+}
+.empty-cta {
+  background: var(--black); color: #fff; border: none;
+  font-size: 12.5px; font-weight: 700; border-radius: 100px;
+  padding: 9px 22px; cursor: pointer; transition: background .12s, transform .12s;
+  font-family: var(--font); letter-spacing: -.1px;
+}
+.empty-cta:hover { background: #2a2a28; transform: translateY(-1px); }
+.empty-cta:active { transform: scale(.97); }
+
+/* ═══════════════════════════════════════
+   COMPOSE VIEW
+═══════════════════════════════════════ */
+.compose-view {
+  position: absolute; inset: 0; background: var(--white);
+  display: flex; flex-direction: column; z-index: 10;
+  opacity: 0; transform: translateX(14px);
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+}
+.compose-view.show {
+  opacity: 1; transform: translateX(0); pointer-events: all;
+}
+.compose-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 18px 11px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.compose-back {
+  width: 28px; height: 28px; border-radius: var(--r-xs);
+  background: transparent; border: 1px solid var(--border-mid);
+  color: var(--muted); font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background .12s, color .12s, border-color .12s;
+  font-family: var(--font);
+}
+.compose-back:hover { background: var(--surface); color: var(--black); border-color: var(--border-strong); }
+.compose-header-title { font-size: 12.5px; font-weight: 600; color: var(--black); flex: 1; }
+.step-track { display: flex; gap: 3px; }
+.step-dot {
+  width: 5px; height: 5px; border-radius: 3px;
+  background: var(--border-mid);
+  transition: all .28s cubic-bezier(.4,0,.2,1);
+}
+.step-dot.active { background: var(--black); width: 16px; }
+.step-dot.done   { background: var(--black); opacity: .28; }
+
+.compose-body { flex: 1; overflow-y: auto; padding: 24px 20px 0; }
+.stage { display: none; }
+.stage.active { display: block; }
+
+.stage-label {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted-2); margin-bottom: 7px;
+}
+.stage-heading {
+  font-size: 20px; font-weight: 800; letter-spacing: -.6px;
+  color: var(--black); margin-bottom: 20px; line-height: 1.25;
+}
+
+/* Input */
+.input-shell {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 13px 13px 10px;
+  display: flex; gap: 10px; align-items: flex-end;
+  margin-bottom: 14px;
+  transition: border-color .18s, box-shadow .18s;
+}
+.input-shell:focus-within {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px rgba(17,17,16,.06);
+}
+.input-shell textarea {
+  flex: 1; background: none; border: none; outline: none; resize: none;
+  font-size: 13.5px; color: var(--black); font-family: var(--font);
+  line-height: 1.65; min-height: 80px; max-height: 180px;
+}
+.input-shell textarea::placeholder { color: var(--muted-2); }
+.send-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--black); border: none; color: #fff;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: background .12s, transform .15s;
+}
+.send-btn:hover { background: #2a2a28; transform: scale(1.07); }
+.send-btn:active { transform: scale(.9); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font-size: 12px; font-weight: 500; padding: 6px 12px;
+  background: var(--white); border: 1px solid var(--border-mid);
+  border-radius: 100px; cursor: pointer; color: var(--muted);
+  transition: background .12s, border-color .12s, color .12s, transform .1s;
+}
+.chip:hover { background: var(--surface); border-color: var(--border-strong); color: var(--black); }
+.chip.selected { background: var(--black); border-color: var(--black); color: #fff; }
+
+/* Confirm card */
+.confirm-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; margin-bottom: 20px;
+}
+.c-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .11em;
+  text-transform: uppercase; color: var(--muted-2); margin-bottom: 9px;
+}
+.c-text {
+  font-size: 14px; font-weight: 500; color: var(--black);
+  line-height: 1.65; margin-bottom: 14px;
+}
+.c-text.loading-text { color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.c-text.loading-text::before {
+  content: '';
+  width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+  border: 1.5px solid var(--border-mid); border-top-color: var(--black);
+  animation: spin .75s linear infinite; display: block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.c-skeleton {
+  height: 11px; border-radius: 6px;
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s ease infinite;
+  margin-bottom: 8px; width: 100%;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.c-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.c-tag {
+  font-size: 11px; font-weight: 600; padding: 3px 9px;
+  background: var(--white); border: 1px solid var(--border-mid);
+  border-radius: 100px; color: var(--muted);
+  opacity: 0; transform: translateY(5px) scale(.96);
+  animation: tagIn .28s ease forwards;
+}
+@keyframes tagIn { to { opacity:1; transform:translateY(0) scale(1); } }
+.c-tag.em { border-color: var(--black); color: var(--black); background: var(--surface-2); }
+
+/* Scout steps */
+.scout-steps { margin-bottom: 20px; }
+.scout-step {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 0; border-bottom: 1px solid var(--border);
+  opacity: 0; transform: translateY(7px);
+  transition: opacity .28s, transform .28s;
+}
+.scout-step:last-child { border-bottom: none; }
+.scout-step.show { opacity:1; transform:translateY(0); }
+.ss-icon {
+  width: 30px; height: 30px; border-radius: var(--r-xs);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; background: var(--surface-2);
+  border: 1px solid var(--border); flex-shrink: 0;
+}
+.ss-icon.spin { animation: spin .9s linear infinite; }
+.ss-icon.done { background: var(--black); border-color: var(--black); color: #fff; font-size: 10px; font-weight: 900; }
+.ss-txt { font-size: 12.5px; font-weight: 600; color: var(--black); }
+.ss-det { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+
+/* People */
+.people-wrap { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; opacity:0; transition: opacity .35s; }
+.people-wrap.show { opacity:1; }
+.person-row {
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px 13px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  opacity:0; transform:translateY(8px);
+  transition: opacity .3s, transform .3s;
+}
+.people-wrap.show .person-row { opacity:1; transform:translateY(0); }
+.people-wrap.show .person-row:nth-child(1) { transition-delay:.05s; }
+.people-wrap.show .person-row:nth-child(2) { transition-delay:.12s; }
+.p-av {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--black);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #fff; flex-shrink: 0;
+  letter-spacing: -.3px;
+}
+.p-info { flex:1; }
+.p-name { font-size: 12.5px; font-weight: 700; color: var(--black); letter-spacing: -.1px; }
+.p-title { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.p-dept {
+  font-size: 10.5px; font-weight: 600; padding: 3px 8px;
+  border-radius: 100px; background: var(--surface-2);
+  border: 1px solid var(--border-mid); color: var(--muted); white-space: nowrap;
+}
+
+/* Email card */
+.email-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; margin-bottom: 20px;
+  animation: slideUp .25s ease;
+}
+.em-row { display: flex; gap: 10px; margin-bottom: 6px; align-items: flex-start; }
+.em-key {
+  font-size: 10px; font-weight: 700; color: var(--muted-2);
+  min-width: 26px; padding-top: 1px; white-space: nowrap;
+  letter-spacing: .07em; text-transform: uppercase;
+}
+.em-val { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.em-hr { border: none; border-top: 1px solid var(--border); margin: 13px 0; }
+.em-body {
+  font-size: 13px; color: var(--black); line-height: 1.8;
+  white-space: pre-wrap; outline: none;
+}
+
+/* Footer */
+.compose-footer {
+  display: flex; gap: 8px; padding: 12px 18px;
+  border-top: 1px solid var(--border);
+  background: var(--white); flex-shrink: 0;
+}
+
+/* Buttons */
+.btn-primary {
+  flex:1; padding: 10px 18px;
+  background: var(--black); color: #fff; border: none;
+  border-radius: 100px;
+  font-size: 12.5px; font-weight: 700; cursor: pointer;
+  font-family: var(--font); letter-spacing: -.1px;
+  transition: background .12s, transform .12s, box-shadow .12s;
+}
+.btn-primary:hover { background: #2a2a28; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(17,17,16,.18); }
+.btn-primary:active { transform: scale(.97); box-shadow: none; }
+.btn-primary:disabled { opacity: .3; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-ghost {
+  padding: 10px 16px;
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border-mid); border-radius: 100px;
+  font-size: 12.5px; font-weight: 600; cursor: pointer;
+  font-family: var(--font);
+  transition: background .12s, color .12s, border-color .12s, transform .1s;
+}
+.btn-ghost:hover { background: var(--surface); color: var(--black); border-color: var(--border-strong); transform: translateY(-1px); }
+.btn-ghost:active { transform: scale(.97); }
+
+.btn-outline {
+  padding: 10px 16px;
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border-mid); border-radius: 100px;
+  font-size: 12.5px; font-weight: 600; cursor: pointer;
+  font-family: var(--font);
+  transition: all .15s;
+}
+.btn-outline:hover { background: var(--black); color: #fff; border-color: var(--black); }
+
+/* ═══════════════════════════════════════
+   THREAD VIEW
+═══════════════════════════════════════ */
+.thread-view {
+  position: absolute; inset:0; display: none; flex-direction: column;
+  background: var(--white); overflow: hidden;
+}
+.thread-view.visible { display: flex; }
+
+/* Thread header */
+.thread-header {
+  padding: 16px 22px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.thread-header-row1 {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.th-status-pill {
+  font-size: 10.5px; font-weight: 700; padding: 3px 9px;
+  border-radius: 100px; border: 1px solid;
+  transition: all .4s ease; letter-spacing: .02em;
+}
+.th-status-pill.sent     { border-color: var(--border-mid); color: var(--muted-2); background: var(--surface); }
+.th-status-pill.opened   { border-color: var(--tint-blue-b);  color: var(--tint-blue-t);  background: var(--tint-blue); }
+.th-status-pill.replied  { border-color: var(--tint-amber-b); color: var(--tint-amber-t); background: var(--tint-amber); }
+.th-status-pill.resolved { border-color: var(--tint-green-b); color: var(--tint-green-t); background: var(--tint-green); }
+.th-cid { font-size: 10.5px; color: var(--muted-2); margin-left: auto; font-variant-numeric: tabular-nums; }
+.th-title {
+  font-size: 20px; font-weight: 800; letter-spacing: -.65px;
+  color: var(--black); margin-bottom: 11px; line-height: 1.2;
+}
+.th-recipients { display: flex; gap: 6px; flex-wrap: wrap; }
+.r-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 100px; padding: 3px 10px 3px 4px;
+}
+.r-av {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--black);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8.5px; font-weight: 800; color: #fff;
+}
+.r-nm { font-size: 11px; font-weight: 600; color: var(--muted); }
+
+/* Status track */
+.status-track {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 22px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0; background: var(--surface);
+}
+.st-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border-mid); flex-shrink: 0;
+}
+.st-dot.active { background: var(--black); animation: pulse 1.8s ease-in-out infinite; }
+.st-dot.done   { background: var(--tint-green-t); }
+.st-label { font-size: 12px; font-weight: 600; color: var(--black); }
+.st-sub { font-size: 11px; color: var(--muted-2); margin-left: auto; }
+
+/* Messages */
+.thread-scroll {
+  flex:1; overflow-y: auto; padding: 24px 22px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.msg { display: flex; flex-direction: column; }
+.msg.out { align-items: flex-end; }
+.msg.in  { align-items: flex-start; }
+.bubble {
+  max-width: 74%; padding: 11px 14px;
+  border-radius: 14px; font-size: 13.5px; line-height: 1.7;
+}
+.msg.out .bubble {
+  background: var(--black); color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.msg.in .bubble {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--black); border-bottom-left-radius: 4px;
+}
+.msg-meta {
+  font-size: 10.5px; color: var(--muted-2);
+  margin-top: 4px; display: flex; align-items: center; gap: 4px;
+}
+.msg-sender { font-weight: 600; color: var(--muted); }
+.tick { font-size: 9px; color: var(--muted-3); }
+.tick.on { color: var(--black); }
+
+/* Resolution banner */
+.resolution-banner {
+  display: none; margin: 0 20px 14px;
+  background: var(--tint-green); border: 1px solid var(--tint-green-b);
+  border-radius: var(--r); padding: 13px 15px;
+}
+.resolution-banner.show { display: block; animation: slideUp .35s ease; }
+.resolution-banner strong {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 800; color: var(--tint-green-t); margin-bottom: 4px;
+}
+.res-check {
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--tint-green-t);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.res-check::after {
+  content: '';
+  width: 8px; height: 5px;
+  border-left: 1.5px solid #fff; border-bottom: 1.5px solid #fff;
+  transform: rotate(-45deg) translate(1px,-1px);
+  display: block;
+}
+.resolution-banner p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.resolution-banner a { color: var(--tint-green-t); font-weight: 700; text-decoration: underline; }
+
+/* Thread actions */
+.thread-actions {
+  display: flex; gap: 8px; padding: 12px 22px;
+  border-top: 1px solid var(--border); flex-shrink: 0;
+}
+.thread-actions .btn-primary { flex:2; }
+.thread-actions .btn-ghost   { flex:1; }
+
+/* ═══════════════════════════════════════
+   HERO SPLASH
+═══════════════════════════════════════ */
+.hero-splash {
+  position: fixed; inset:0; z-index:100;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 48px; text-align: center;
+  background: var(--white);
+  transition: opacity .45s ease, transform .45s ease;
+}
+/* Subtle grid background */
+.hero-splash::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+  opacity: .5;
+}
+.hero-splash.out { opacity:0; transform:scale(1.015); pointer-events:none; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); background: var(--surface);
+  border: 1px solid var(--border-mid); border-radius: 100px;
+  padding: 5px 13px; margin-bottom: 28px; position: relative;
+}
+.hero-eyebrow-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--black); animation: pulse 1.8s ease-in-out infinite;
+  display: inline-block;
+}
+
+.hero-logo {
+  display: flex; align-items: center; gap: 11px;
+  margin-bottom: 28px; position: relative;
+}
+.hero-logo-mark {
+  width: 44px; height: 44px; background: var(--black);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900; color: #fff; letter-spacing: -.5px;
+}
+.hero-logo-name {
+  font-size: 36px; font-weight: 900; letter-spacing: -1.6px; color: var(--black);
+}
+
+.hero-h1 {
+  font-size: clamp(30px, 4.5vw, 50px); font-weight: 900;
+  letter-spacing: -1.6px; line-height: 1.08;
+  color: var(--black); margin-bottom: 18px; max-width: 580px;
+  position: relative;
+}
+.hero-h1 em {
+  font-style: normal;
+  background: linear-gradient(90deg, #111 0%, #555 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: .38;
+}
+
+.hero-sub {
+  font-size: 15.5px; color: var(--muted); line-height: 1.65;
+  max-width: 440px; margin-bottom: 28px; position: relative;
+}
+.hero-sub strong { color: var(--black); font-weight: 600; }
+
+.hero-tags {
+  display: flex; gap: 7px; flex-wrap: wrap;
+  justify-content: center; margin-bottom: 32px; position: relative;
+}
+.hero-tag {
+  font-size: 12px; font-weight: 500; padding: 6px 13px;
+  background: var(--white); border: 1px solid var(--border-mid);
+  border-radius: 100px; color: var(--muted);
+  transition: background .15s, border-color .15s, color .15s, transform .12s;
+}
+.hero-tag:hover { background: var(--surface); border-color: var(--border-strong); color: var(--black); transform: translateY(-1px); }
+
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 28px;
+  background: var(--black); color: #fff; border: none;
+  border-radius: 100px;
+  font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font);
+  letter-spacing: -.2px; position: relative;
+  box-shadow: 0 1px 3px rgba(17,17,16,.12), 0 6px 20px rgba(17,17,16,.15);
+  transition: background .12s, transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s;
+}
+.hero-cta:hover { background: #2a2a28; transform: translateY(-2px) scale(1.02); box-shadow: 0 2px 6px rgba(17,17,16,.12), 0 10px 28px rgba(17,17,16,.2); }
+.hero-cta:active { transform: scale(.97); box-shadow: none; }
+.hero-cta-arr { transition: transform .18s; display: inline-block; }
+.hero-cta:hover .hero-cta-arr { transform: translateX(3px); }
+
+.hero-hint {
+  margin-top: 20px; font-size: 11px; color: var(--muted-2);
+  display: flex; align-items: center; gap: 5px; position: relative;
+}
+
+/* ═══════════════════════════════════════
+   NOTIFICATION
+═══════════════════════════════════════ */
+.notif {
+  position: fixed; top: -100px; right: 18px; z-index: 200;
+  background: var(--white); border: 1px solid var(--border-mid);
+  border-radius: 12px; padding: 11px 14px;
+  display: flex; align-items: flex-start; gap: 10px;
+  min-width: 270px; max-width: 320px;
+  box-shadow: 0 4px 24px rgba(17,17,16,.12), 0 1px 4px rgba(17,17,16,.08);
+  transition: top .42s cubic-bezier(.34,1.56,.64,1);
+}
+.notif.show { top: 18px; }
+.notif-icon {
+  width: 30px; height: 30px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.notif-app  { font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-2); margin-bottom: 2px; }
+.notif-title{ font-size: 12px; font-weight: 700; color: var(--black); margin-bottom: 1px; }
+.notif-body { font-size: 11px; color: var(--muted); }
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeUp  { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes popIn   { 0%{opacity:0;transform:scale(.82)} 60%{transform:scale(1.07)} 100%{opacity:1;transform:scale(1)} }
+@keyframes bounceIn{ 0%{transform:scale(1)} 40%{transform:scale(.9)} 70%{transform:scale(1.08)} 100%{transform:scale(1)} }
+@keyframes sendPulse{0%{transform:scale(1)} 30%{transform:scale(.8) rotate(-10deg)} 70%{transform:scale(1.2) rotate(5deg)} 100%{transform:scale(1) rotate(0deg)}}
+
+.hero-splash  { animation: fadeIn .4s ease both; }
+.hero-eyebrow { animation: fadeUp .4s .05s ease both; }
+.hero-logo    { animation: fadeUp .45s .1s ease both; }
+.hero-h1      { animation: fadeUp .5s .18s ease both; }
+.hero-sub     { animation: fadeUp .5s .26s ease both; }
+.hero-tags    { animation: fadeUp .5s .32s ease both; }
+.hero-cta     { animation: fadeUp .5s .4s ease both; }
+.hero-hint    { animation: fadeIn .8s .8s ease both; }
+
+.stage.active { animation: fadeUp .24s ease; }
+.empty-mark   { animation: popIn .4s .05s ease both; }
+.empty-state  { animation: fadeIn .25s ease; }
+.chip.selected{ animation: bounceIn .3s ease; }
+.send-btn.sending { animation: sendPulse .4s ease; }
+.case-item-entering { animation: fadeUp .28s ease forwards; }
+.msg.animating{ animation: slideUp .28s cubic-bezier(.34,1.4,.64,1); }
+
+@media (max-width: 680px) {
+  .sidebar { display: none; }
+  .list-panel { width: 100%; display: none; }
+  .list-panel.mobile-show { display: flex; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero-splash" id="hero-splash">
+  <div class="hero-eyebrow">
+    <span class="hero-eyebrow-dot"></span>
+    Providence College · Hackathon Demo
+  </div>
+
+  <div class="hero-logo">
+    <div class="hero-logo-mark">R</div>
+    <div class="hero-logo-name">Relay</div>
+  </div>
+
+  <h1 class="hero-h1">Your problem.<br><em>The right person.</em><br>Solved today.</h1>
+
+  <p class="hero-sub">
+    You've got enough to worry about. Finding help shouldn't be one of them.<br>
+    Tell Relay what's wrong. We'll help get your problem into the right hands.
+  </p>
+
+  <div class="hero-tags">
+    <span class="hero-tag">🎓 Graduation holds</span>
+    <span class="hero-tag">💰 Financial aid</span>
+    <span class="hero-tag">🏠 Housing &amp; facilities</span>
+    <span class="hero-tag">💻 IT access</span>
+  </div>
+
+  <button class="hero-cta" onclick="dismissHero()">
+    Try the demo
+    <span class="hero-cta-arr">→</span>
+  </button>
+
+  <div class="hero-hint">
+    <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    ~30 seconds to see the full flow
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="notif" id="notif">
+  <div class="notif-icon">🔔</div>
+  <div>
+    <div class="notif-app">Relay</div>
+    <div class="notif-title" id="notif-title">Message opened</div>
+    <div class="notif-body" id="notif-body">Sarah Mitchell viewed your message.</div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">R</div>
+    <div class="sidebar-nav">
+      <div class="sidebar-icon active" id="nav-home" onclick="navTo('home')" title="Home">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V21a.75.75 0 01-.75.75H15.75v-6h-7.5v6H3.75A.75.75 0 013 21V9.75z"/></svg>
+      </div>
+      <div class="sidebar-icon" id="nav-cases" onclick="navTo('cases')" title="My Relays">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+      </div>
+    </div>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-icon" title="Settings">
+      <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    </div>
+    <div class="sidebar-avatar">AC</div>
+  </div>
+
+  <!-- LIST PANEL -->
+  <div class="list-panel">
+    <div class="list-header">
+      <span class="list-title">My Relays</span>
+      <button class="new-btn" onclick="startNew()" title="New relay">+</button>
+    </div>
+
+    <div class="list-search">
+      <div class="search-wrap">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+        <input type="text" placeholder="Search relays…">
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <div class="ftab on">All</div>
+      <div class="ftab">Active</div>
+      <div class="ftab">Resolved</div>
+    </div>
+
+    <div class="case-list" id="case-list">
+      <div class="case-item" id="ci-active" onclick="openCase('active')">
+        <div class="ci-dot-wrap"><div class="case-dot dot-active"></div></div>
+        <div class="case-item-body">
+          <div class="case-item-title">Can't Register — Graduation</div>
+          <div class="case-item-sub">Sarah Mitchell · Registrar</div>
+        </div>
+        <div class="ci-right">
+          <div class="case-item-time">2m</div>
+          <div class="ci-badge ci-badge-active">Waiting</div>
+        </div>
+      </div>
+
+      <div class="case-item" id="ci-replied" onclick="openCase('replied')">
+        <div class="ci-dot-wrap"><div class="case-dot dot-replied"></div></div>
+        <div class="case-item-body">
+          <div class="case-item-title">Dorm AC — 2 Weeks Broken</div>
+          <div class="case-item-sub">Marcus Rivera · Facilities</div>
+        </div>
+        <div class="ci-right">
+          <div class="case-item-time">1h</div>
+          <div class="ci-badge ci-badge-replied">Replied</div>
+        </div>
+      </div>
+
+      <div class="case-item" id="ci-resolved" onclick="openCase('resolved')">
+        <div class="ci-dot-wrap"><div class="case-dot dot-resolved"></div></div>
+        <div class="case-item-body">
+          <div class="case-item-title">Financial Aid — Classes Monday</div>
+          <div class="case-item-sub">Diana Park · Financial Aid</div>
+        </div>
+        <div class="ci-right">
+          <div class="case-item-time">1d</div>
+          <div class="ci-badge ci-badge-resolved">Resolved</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="content">
+
+    <!-- Empty state -->
+    <div class="empty-state" id="empty-state">
+      <div class="empty-mark">📬</div>
+      <div class="empty-title">Nothing selected</div>
+      <div class="empty-sub">Pick a relay from the list, or start a new one to describe your issue.</div>
+      <button class="empty-cta" onclick="startNew()">+ New Relay</button>
+    </div>
+
+    <!-- Compose -->
+    <div class="compose-view" id="compose">
+      <div class="compose-header">
+        <button class="compose-back" id="compose-back-btn" onclick="handleComposeBack()">←</button>
+        <span class="compose-header-title" id="compose-header-title">Describe your issue</span>
+        <div class="step-track">
+          <div class="step-dot active" id="dot-1"></div>
+          <div class="step-dot" id="dot-2"></div>
+          <div class="step-dot" id="dot-3"></div>
+          <div class="step-dot" id="dot-4"></div>
+        </div>
+      </div>
+
+      <div class="compose-body">
+
+        <!-- Stage 1 -->
+        <div class="stage active" id="stage-1">
+          <div class="stage-label">Step 1 of 4</div>
+          <div class="stage-heading">What's going on?</div>
+          <div class="input-shell">
+            <textarea id="issue-input" placeholder="e.g. "I can't register for graduation because of an account hold…"" rows="4"></textarea>
+            <button class="send-btn" onclick="goConfirm()">↑</button>
+          </div>
+          <div class="chips">
+            <div class="chip" onclick="fill('I paid my tuition but there\'s still a hold on my account. Graduation is in 6 weeks and I can\'t register for my last required class.')">🎓 Can't register — graduation at risk</div>
+            <div class="chip" onclick="fill('The AC in my dorm has been broken for two weeks. I reported it to my RA but nobody has responded.')">❄️ Dorm AC broken — RA not responding</div>
+            <div class="chip" onclick="fill('My financial aid disbursement is still pending and classes start Monday. I can\'t pay my balance.')">💰 Aid not released — classes start Monday</div>
+            <div class="chip" onclick="fill('I haven\'t been able to access Blackboard for 4 days. I\'ve submitted a ticket but IT hasn\'t responded and I\'m missing assignments.')">💻 Locked out of Blackboard — missing work</div>
+          </div>
+        </div>
+
+        <!-- Stage 2 -->
+        <div class="stage" id="stage-2">
+          <div class="stage-label">Step 2 of 4</div>
+          <div class="stage-heading">Here's what Relay heard.</div>
+          <div class="confirm-card">
+            <div class="c-label">Your situation</div>
+            <div class="c-text" id="confirm-text"></div>
+            <div class="c-tags" id="confirm-tags"></div>
+          </div>
+        </div>
+
+        <!-- Stage 3 -->
+        <div class="stage" id="stage-3">
+          <div class="stage-label">Step 3 of 4</div>
+          <div class="stage-heading" id="scout-heading">Searching the university…</div>
+          <div class="scout-steps" id="ss-steps">
+            <div class="scout-step" id="ss-1">
+              <div class="ss-icon spin" id="ss-i1">⟳</div>
+              <div><div class="ss-txt">Searching university directory</div><div class="ss-det" id="ss-d1">Scanning contacts…</div></div>
+            </div>
+            <div class="scout-step" id="ss-2">
+              <div class="ss-icon" id="ss-i2">🏫</div>
+              <div><div class="ss-txt">Matching to departments</div><div class="ss-det" id="ss-d2">Identifying offices</div></div>
+            </div>
+            <div class="scout-step" id="ss-3">
+              <div class="ss-icon" id="ss-i3">👤</div>
+              <div><div class="ss-txt">Finding decision-makers</div><div class="ss-det" id="ss-d3">Looking up contacts</div></div>
+            </div>
+          </div>
+          <div class="people-wrap" id="people-wrap"></div>
+        </div>
+
+        <!-- Stage 4 -->
+        <div class="stage" id="stage-4">
+          <div class="stage-label">Step 4 of 4</div>
+          <div class="stage-heading">One message. The right people.</div>
+          <div class="email-card">
+            <div id="em-meta"></div>
+            <hr class="em-hr"/>
+            <div class="em-body" id="em-body" contenteditable="true"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="compose-footer" id="compose-footer"></div>
+    </div>
+
+    <!-- Thread view -->
+    <div class="thread-view" id="relay-view">
+      <div class="thread-header">
+        <div class="thread-header-row1">
+          <div class="th-status-pill sent" id="th-pill">Sent</div>
+          <div class="th-cid" id="th-cid">Case RL-1042</div>
+        </div>
+        <div class="th-title" id="th-title">Registration Hold</div>
+        <div class="th-recipients" id="th-recipients"></div>
+      </div>
+
+      <div class="status-track">
+        <div class="st-dot" id="sb-dot"></div>
+        <div class="st-label" id="sb-txt">Sent</div>
+        <div class="st-sub" id="sb-sub"></div>
+      </div>
+
+      <div class="thread-scroll" id="thread-scroll"></div>
+
+      <div class="resolution-banner" id="summary-bar">
+        <strong><span class="res-check"></span>Case Resolved</strong>
+        <p id="summary-text"></p>
+      </div>
+
+      <div class="thread-actions">
+        <button class="btn-primary" id="relay-btn" onclick="advanceRelay()">⚡ Simulate reply</button>
+        <button class="btn-ghost" onclick="closeRelayView()">← Back</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const ISSUES = {
+  registration: {
+    confirm: "You're a senior with a tuition hold blocking your final course registration before graduation. This is time-sensitive — seats are filling.",
+    tags: ["Registration Hold","Account Hold","Time-Sensitive"],
+    people: [{initials:"SM",name:"Sarah Mitchell",title:"Director of Student Accounts",dept:"Student Accounts"},{initials:"JO",name:"James Okafor",title:"Associate Registrar",dept:"Registrar"}],
+    emailTo: "Sarah Mitchell <s.mitchell@providence.edu>, James Okafor <j.okafor@providence.edu>",
+    emailSubject: "Urgent: Account Hold Blocking Final Course Registration",
+    emailBody: `Dear Sarah and James,\n\nI am a senior at Providence College and have confirmed my tuition payment for this semester. However, there is an active hold on my account preventing me from registering for the final course required for my May graduation.\n\nI have already secured a job offer contingent on graduating on time, so resolving this quickly is critical.\n\nCould you please review my account, verify payment receipt, and clear the hold so I can complete registration?\n\nThank you,\nAlex Carter · Class of 2025 · a.carter@providence.edu`,
+    relayTitle:"Registration Hold", caseId:"RL-1045",
+    recipients:[{initials:"SM",name:"Sarah Mitchell"},{initials:"JO",name:"James Okafor"}],
+    stages:[
+      {pill:"sent",    dot:"done",   txt:"Delivered",                 sub:"Message received by Student Accounts and Registrar."},
+      {pill:"opened",  dot:"active", txt:"Opened by Sarah Mitchell",  sub:"2 minutes ago · Student Accounts", notif:{title:"Sarah Mitchell opened your message",body:"Case RL-1045 · Student Accounts"}},
+      {pill:"replied", dot:"done",   txt:"Reply received",            sub:"Sarah Mitchell · Student Accounts", reply:{sender:"Sarah Mitchell",dept:"Student Accounts",text:"Hi Alex,\n\nI've reviewed your account and confirmed your payment was received. The hold was a system error — I've flagged it for removal now.\n\nYou should be clear to register within 30 minutes. I've also cc'd James at the Registrar.\n\nSorry for the trouble!\n\nSarah"}},
+      {pill:"resolved",dot:"done",   txt:"Case resolved",             sub:"Hold cleared · You can now register", summary:'Sarah confirmed the hold was a system error and cleared it. James at the Registrar has been cc\'d. <a href="#">Register for your course now →</a>'}
+    ]
+  },
+  dorm: {
+    confirm:"You have an unresolved broken AC in your dorm for two weeks. Your RA hasn't responded and Facilities needs to be involved.",
+    tags:["Maintenance","Dorm","Unresponsive RA"],
+    people:[{initials:"MR",name:"Marcus Rivera",title:"Director of Facilities",dept:"Facilities"},{initials:"CL",name:"Claire Larson",title:"Area Director, Residence Life",dept:"Residence Life"}],
+    emailTo:"Marcus Rivera <m.rivera@providence.edu>",emailSubject:"Maintenance: Broken AC — Dorm (2 weeks unresolved)",
+    emailBody:`Dear Marcus and Claire,\n\nThe AC in my dorm room has been non-functional for two weeks. I reported this to my RA but have not received a response.\n\nThis is significantly affecting my ability to study and sleep. Could you please schedule a repair?\n\nThank you,\nAlex Carter · Class of 2025`,
+    relayTitle:"Dorm AC Repair",caseId:"RL-1046",
+    recipients:[{initials:"MR",name:"Marcus Rivera"},{initials:"CL",name:"Claire Larson"}],
+    stages:[
+      {pill:"sent",    dot:"done",   txt:"Delivered",                sub:"Message received by Facilities and Residence Life."},
+      {pill:"opened",  dot:"active", txt:"Opened by Claire Larson",  sub:"5 minutes ago · Residence Life", notif:{title:"Claire Larson opened your message",body:"Case RL-1046 · Residence Life"}},
+      {pill:"replied", dot:"done",   txt:"Reply received",           sub:"Marcus Rivera · Facilities", reply:{sender:"Marcus Rivera",dept:"Facilities",text:"Hi Alex,\n\nSorry for the delay — your work order wasn't logged correctly. I've assigned a technician to your room tomorrow 10am–12pm to replace the unit.\n\nClaire has been notified to follow up with your RA.\n\nMarcus"}},
+      {pill:"resolved",dot:"done",   txt:"Case resolved",            sub:"Repair scheduled tomorrow 10am–12pm", summary:'Marcus has assigned a technician tomorrow 10am–12pm. Claire in Residence Life has been notified. <a href="#">View work order →</a>'}
+    ]
+  },
+  financialaid: {
+    confirm:"Your financial aid disbursement is pending and classes start Monday. Financial Aid and Student Accounts need to expedite.",
+    tags:["Financial Aid","Disbursement Pending","Urgent"],
+    people:[{initials:"DP",name:"Diana Park",title:"Senior Financial Aid Advisor",dept:"Financial Aid"},{initials:"TW",name:"Thomas Webb",title:"Student Accounts Manager",dept:"Student Accounts"}],
+    emailTo:"Diana Park <d.park@providence.edu>, Thomas Webb <t.webb@providence.edu>",emailSubject:"Urgent: Financial Aid Disbursement Pending — Classes Start Monday",
+    emailBody:`Dear Diana and Thomas,\n\nMy financial aid disbursement is showing as pending, and classes begin Monday. Could you please review my status and advise on when funds will be processed?\n\nThank you,\nAlex Carter · Class of 2025`,
+    relayTitle:"Financial Aid Delay",caseId:"RL-1047",
+    recipients:[{initials:"DP",name:"Diana Park"},{initials:"TW",name:"Thomas Webb"}],
+    stages:[
+      {pill:"sent",    dot:"done",   txt:"Delivered",              sub:"Message received by Financial Aid and Student Accounts."},
+      {pill:"opened",  dot:"active", txt:"Opened by Diana Park",   sub:"Just now · Financial Aid Office", notif:{title:"Diana Park opened your message",body:"Case RL-1047 · Financial Aid"}},
+      {pill:"replied", dot:"done",   txt:"Reply received",         sub:"Diana Park · Financial Aid", reply:{sender:"Diana Park",dept:"Financial Aid",text:"Hi Alex,\n\nI've reviewed your file — your aid was held in a batch processing queue. I've manually pushed it through.\n\nThomas at Student Accounts will post the funds by end of day tomorrow. You'll be set before Monday.\n\nDiana"}},
+      {pill:"resolved",dot:"done",   txt:"Case resolved",          sub:"Disbursement processed · Arriving by tomorrow", summary:'Diana manually processed your disbursement. Funds will be posted by end of day tomorrow. <a href="#">View your account →</a>'}
+    ]
+  },
+  it: {
+    confirm:"You've had no Blackboard access for 4 days and IT hasn't responded. This is blocking your coursework.",
+    tags:["IT Access","Blackboard","No Response"],
+    people:[{initials:"KN",name:"Kevin Nash",title:"IT Help Desk Lead",dept:"IT Services"}],
+    emailTo:"Kevin Nash <k.nash@providence.edu>",emailSubject:"Escalation: Blackboard Access — No Response in 4 Days",
+    emailBody:`Dear Kevin,\n\nI have been unable to access Blackboard for four days. I submitted a ticket but have not received a response.\n\nThis is preventing me from accessing course materials and submitting assignments.\n\nCould you please escalate and restore my access?\n\nThank you,\nAlex Carter · Class of 2025`,
+    relayTitle:"Blackboard Access",caseId:"RL-1048",
+    recipients:[{initials:"KN",name:"Kevin Nash"}],
+    stages:[
+      {pill:"sent",    dot:"done",   txt:"Delivered",           sub:"Message received by IT Help Desk."},
+      {pill:"opened",  dot:"active", txt:"Opened by Kevin Nash",sub:"1 minute ago · IT Services", notif:{title:"Kevin Nash opened your message",body:"Case RL-1048 · IT Services"}},
+      {pill:"replied", dot:"done",   txt:"Reply received",      sub:"Kevin Nash · IT Services", reply:{sender:"Kevin Nash",dept:"IT Services",text:"Hey Alex,\n\nFound the issue — your account was flagged by an automated security scan and locked incorrectly. I've cleared it and your access is fully restored now.\n\nSorry this sat in the queue.\n\nKevin"}},
+      {pill:"resolved",dot:"done",   txt:"Case resolved",       sub:"Access restored · All courses available", summary:'Kevin cleared a security scan error. Your Blackboard access is fully restored. <a href="#">Go to Blackboard →</a>'}
+    ]
+  }
+};
+
+const DEMO_CASES = {
+  active:   { ...ISSUES.registration, _stage: 1 },
+  replied:  { ...ISSUES.dorm,         _stage: 2 },
+  resolved: { ...ISSUES.financialaid, _stage: 3 }
+};
+
+const API_KEY = 'YOUR_OPENAI_API_KEY_HERE';
+
+let current = null, relayStage = 0, isNewCase = false, currentComposeStage = 1;
+const $ = id => document.getElementById(id);
+const delay = ms => new Promise(r => setTimeout(r, ms));
+const fill = t => { $('issue-input').value = t; };
+
+async function aiCall(messages) {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${API_KEY}`},
+    body:JSON.stringify({model:'gpt-4o-mini',response_format:{type:'json_object'},messages})
+  });
+  if (!res.ok) { const b = await res.json().catch(()=>({})); throw new Error(b?.error?.message||`HTTP ${res.status}`); }
+  return JSON.parse((await res.json()).choices[0].message.content);
+}
+
+async function analyzeIssue(userText) {
+  return aiCall([{role:'system',content:`You are Relay — a smart AI helping college students cut through bureaucracy.\n\nReturn JSON:\n- confirm: 1-2 sentence plain-English restatement\n- tags: 2-4 short labels\n- relayTitle: 3-5 word case title\n- contacts: 1-2 objects: {name,initials,title,dept}\n- emailSubject: sharp subject line\n- emailBody: professional email from Alex Carter, Class of 2025. Under 200 words, no bullets.`},{role:'user',content:userText}]);
+}
+
+function dismissHero() {
+  const s = $('hero-splash');
+  s.classList.add('out');
+  setTimeout(()=>{ s.style.display='none'; }, 480);
+}
+
+function fireNotif(title, body) {
+  $('notif-title').textContent = title;
+  $('notif-body').textContent = body;
+  $('notif').classList.add('show');
+  setTimeout(()=>$('notif').classList.remove('show'), 4500);
+}
+
+function navTo(which) {
+  $('nav-home').classList.toggle('active', which==='home');
+  $('nav-cases').classList.toggle('active', which==='cases');
+}
+
+const STAGE_META = {
+  1:{title:'Describe your issue',    footer:''},
+  2:{title:'Confirm your situation', footer:'<button class="btn-primary" onclick="goScout()">Yes, that\'s right →</button><button class="btn-ghost" onclick="showStage(1)">Edit</button>'},
+  3:{title:'Finding the right people',footer:'<div id="scout-footer-slot"></div>'},
+  4:{title:'Review &amp; send',       footer:'<button class="btn-primary" onclick="goRelay()">Send &amp; open Relay →</button><button class="btn-ghost" onclick="showStage(3)">← Back</button>'},
+};
+
+function showStage(n) {
+  currentComposeStage = n;
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  const el = $(`stage-${n}`);
+  el.classList.add('active'); el.style.animation='none'; el.offsetHeight; el.style.animation='';
+  $('compose-header-title').textContent = STAGE_META[n].title;
+  for (let i=1;i<=4;i++) $(`dot-${i}`).className='step-dot'+(i<n?' done':i===n?' active':'');
+  const footer=$('compose-footer');
+  footer.innerHTML=STAGE_META[n].footer;
+  footer.style.display=STAGE_META[n].footer?'':'none';
+  $('compose-back-btn').style.visibility=n===1?'hidden':'visible';
+}
+
+function handleComposeBack() {
+  if (currentComposeStage>1) showStage(currentComposeStage-1); else closeCompose();
+}
+
+function startNew() {
+  isNewCase=true; $('issue-input').value='';
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  showStage(1);
+  $('compose').classList.add('show');
+  $('relay-view').classList.remove('visible');
+  $('empty-state').style.display='none';
+  document.querySelectorAll('.case-item').forEach(i=>i.classList.remove('active'));
+  document.querySelector('.sidebar').style.display='none';
+}
+
+function closeCompose() {
+  $('compose').classList.remove('show');
+  document.querySelector('.sidebar').style.display='';
+  if (!$('relay-view').classList.contains('visible')) $('empty-state').style.display='flex';
+}
+
+async function goConfirm() {
+  const input=$('issue-input').value.trim();
+  if (!input) { $('issue-input').focus(); return; }
+  const btn=document.querySelector('#stage-1 .send-btn');
+  if (btn){btn.classList.add('sending');setTimeout(()=>btn.classList.remove('sending'),400);}
+  showStage(2);
+  const card=document.querySelector('.confirm-card');
+  card.classList.add('loading');
+  $('confirm-text').className='c-text loading-text';
+  $('confirm-text').textContent='Analyzing your issue…';
+  $('confirm-tags').innerHTML='<div class="c-skeleton" style="width:55%"></div><div class="c-skeleton" style="width:72%"></div><div class="c-skeleton"></div>';
+  document.querySelectorAll('#stage-2 button').forEach(b=>b.disabled=true);
+  try {
+    const data=await analyzeIssue(input);
+    const caseId='RL-'+(1049+Math.floor(Math.random()*900));
+    current={
+      confirm:data.confirm, tags:data.tags,
+      relayTitle:data.relayTitle||data.tags[0], people:data.contacts,
+      emailTo:data.contacts.map(c=>`${c.name} <${c.name.toLowerCase().replace(/\s+/g,'.')}@university.edu>`).join(', '),
+      emailSubject:data.emailSubject, emailBody:data.emailBody, caseId,
+      recipients:data.contacts.map(c=>({name:c.name,initials:c.initials})),
+      stages:[
+        {pill:'sent',   dot:'done',  txt:'Delivered',sub:`Message received by ${data.contacts.map(c=>c.dept).join(' and ')}.`},
+        {pill:'opened', dot:'active',txt:`Opened by ${data.contacts[0].name}`,sub:`Just now · ${data.contacts[0].dept}`,notif:{title:`${data.contacts[0].name} opened your message`,body:`${caseId} · ${data.contacts[0].dept}`}},
+        {pill:'replied',dot:'done',  txt:'Reply received',sub:`${data.contacts[0].name} · ${data.contacts[0].dept}`,reply:{sender:data.contacts[0].name,dept:data.contacts[0].dept,text:`Hi Alex,\n\nThank you for reaching out. We've received your message and are looking into this now.\n\nWe'll follow up shortly.\n\nBest,\n${data.contacts[0].name}`}},
+        {pill:'resolved',dot:'done', txt:'Case resolved',sub:'Issue addressed · Follow up if needed',summary:`Your message was received and acted on by ${data.contacts[0].name} in ${data.contacts[0].dept}.`}
+      ]
+    };
+    card.classList.remove('loading');
+    $('confirm-text').className='c-text';
+    $('confirm-text').textContent=current.confirm;
+    $('confirm-tags').innerHTML=current.tags.map((t,i)=>`<span class="c-tag${i===current.tags.length-1?' em':''}" style="animation-delay:${i*60}ms">${t}</span>`).join('');
+  } catch(err) {
+    card.classList.remove('loading');
+    $('confirm-text').className='c-text';
+    $('confirm-text').textContent=`Error: ${err.message}`;
+    $('confirm-tags').innerHTML='<span class="c-tag">Check console · try a new API key</span>';
+    console.error('[Relay AI]',err);
+  } finally { document.querySelectorAll('#stage-2 button').forEach(b=>b.disabled=false); }
+}
+
+async function goScout() {
+  showStage(3);
+  $('scout-heading').textContent='Searching the university…';
+  ['ss-1','ss-2','ss-3'].forEach(id=>$(id).classList.remove('show'));
+  $('people-wrap').classList.remove('show'); $('people-wrap').innerHTML='';
+  ['ss-i1','ss-i2','ss-i3'].forEach((id,i)=>{const el=$(id);el.style='';el.className=i===0?'ss-icon spin':'ss-icon';el.textContent=i===0?'⟳':['🏫','👤'][i-1];});
+  $('compose-footer').innerHTML='';
+  await delay(150); $('ss-1').classList.add('show'); await delay(800);
+  $('ss-i1').className='ss-icon done'; $('ss-i1').textContent='✓'; $('ss-d1').textContent='Directory scanned';
+  await delay(350); $('ss-2').classList.add('show'); await delay(900);
+  $('ss-i2').className='ss-icon done'; $('ss-i2').textContent='✓'; $('ss-d2').textContent=current.people.map(p=>p.dept).join(' · ');
+  await delay(350); $('ss-3').classList.add('show'); await delay(900);
+  $('ss-i3').className='ss-icon done'; $('ss-i3').textContent='✓'; $('ss-d3').textContent=`${current.people.length} contact${current.people.length>1?'s':''} found`;
+  $('scout-heading').textContent='Found the right people. ✓';
+  $('people-wrap').innerHTML=current.people.map(p=>`<div class="person-row"><div class="p-av">${p.initials}</div><div class="p-info"><div class="p-name">${p.name}</div><div class="p-title">${p.title}</div></div><div class="p-dept">${p.dept}</div></div>`).join('');
+  await delay(200); $('people-wrap').classList.add('show');
+  $('compose-footer').innerHTML='<button class="btn-ghost" onclick="goEmail()">View draft</button><button class="btn-primary" onclick="goEmail()">Send with Relay →</button>';
+}
+
+function goEmail() {
+  $('em-meta').innerHTML=`<div class="em-row"><span class="em-key">To</span><span class="em-val">${current.emailTo}</span></div><div class="em-row"><span class="em-key">Re</span><span class="em-val">${current.emailSubject}</span></div>`;
+  $('em-body').textContent=current.emailBody;
+  showStage(4);
+}
+
+function goRelay() {
+  $('compose').classList.remove('show');
+  document.querySelector('.sidebar').style.display='';
+  loadRelayView(current,0,true);
+  if (isNewCase){ addCaseToList(current); isNewCase=false; }
+}
+
+function addCaseToList(issue) {
+  const list=$('case-list'), id='ci-new-'+Date.now();
+  const div=document.createElement('div');
+  div.className='case-item active case-item-entering'; div.id=id;
+  div.innerHTML=`<div class="ci-dot-wrap"><div class="case-dot dot-active"></div></div><div class="case-item-body"><div class="case-item-title">${issue.relayTitle}</div><div class="case-item-sub">${issue.recipients.map(r=>r.name).join(', ')}</div></div><div class="ci-right"><div class="case-item-time">now</div><div class="ci-badge ci-badge-active">Waiting</div></div>`;
+  div.onclick=()=>openCaseFromItem(div,issue,0);
+  list.prepend(div);
+  document.querySelectorAll('.case-item').forEach(i=>i.classList.remove('active'));
+  div.classList.add('active');
+  setTimeout(()=>div.classList.remove('case-item-entering'),300);
+}
+
+function openCase(type) {
+  document.querySelectorAll('.case-item').forEach(i=>i.classList.remove('active'));
+  $(`ci-${type}`).classList.add('active');
+  $('compose').classList.remove('show');
+  const demo=DEMO_CASES[type]; loadRelayView(demo,demo._stage,false);
+}
+
+function openCaseFromItem(el,issue,stage) {
+  document.querySelectorAll('.case-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active'); loadRelayView(issue,stage,false);
+}
+
+function closeRelayView() {
+  $('relay-view').classList.remove('visible');
+  $('empty-state').style.display='flex';
+  document.querySelectorAll('.case-item').forEach(i=>i.classList.remove('active'));
+}
+
+function loadRelayView(issue,startStage,animate) {
+  current=issue; relayStage=startStage;
+  $('empty-state').style.display='none';
+  const rv=$('relay-view'); rv.classList.add('visible');
+  rv.classList.remove('entering'); rv.offsetHeight; rv.classList.add('entering');
+  $('th-title').textContent=issue.relayTitle;
+  $('th-cid').textContent=`Case ${issue.caseId||'RL-1042'}`;
+  const pillState=startStage===0?'sent':(issue.stages[startStage-1]?.pill||'sent');
+  const pill=$('th-pill');
+  pill.textContent=pillState.charAt(0).toUpperCase()+pillState.slice(1);
+  pill.className=`th-status-pill ${pillState}`;
+  $('th-recipients').innerHTML=issue.recipients.map(r=>`<div class="r-chip"><div class="r-av">${r.initials}</div><div class="r-nm">${r.name}</div></div>`).join('');
+  const ls=startStage>0?issue.stages[startStage-1]:null;
+  $('sb-dot').className=ls?`st-dot ${ls.dot}`:'st-dot active';
+  $('sb-txt').textContent=ls?ls.txt:'Message sent';
+  $('sb-sub').textContent=ls?ls.sub:'Waiting for delivery confirmation…';
+  $('thread-scroll').innerHTML=`<div class="msg out"><div class="bubble">${(issue.emailBody||'').replace(/\n/g,'<br>')}</div><div class="msg-meta"><span>Just now</span><span class="tick${startStage>0?' on':''}">✓</span><span class="tick${startStage>0?' on':''}">✓</span></div></div>`;
+  for(let i=0;i<startStage;i++){const s=issue.stages[i];if(s.reply)appendReply(s.reply);}
+  const finalStage=issue.stages[issue.stages.length-1];
+  const resolved=startStage>=issue.stages.length;
+  if(resolved&&finalStage.summary){$('summary-text').innerHTML=finalStage.summary;$('summary-bar').classList.add('show');}
+  else $('summary-bar').classList.remove('show');
+  if(resolved){$('relay-btn').textContent='✓ Resolved';$('relay-btn').disabled=true;}
+  else{const labels=['⚡ Simulate delivery','⚡ Simulate opened','⚡ Simulate reply','⚡ Simulate resolution'];$('relay-btn').textContent=labels[relayStage]||'⚡ Continue';$('relay-btn').disabled=false;}
+}
+
+function appendReply(reply,animate=false) {
+  const div=document.createElement('div');
+  div.className=animate?'msg in animating':'msg in';
+  div.innerHTML=`<div class="bubble">${reply.text.replace(/\n/g,'<br>')}</div><div class="msg-meta"><span class="msg-sender">${reply.sender}</span><span>· ${reply.dept}</span></div>`;
+  $('thread-scroll').appendChild(div);
+  setTimeout(()=>div.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+
+async function advanceRelay() {
+  if(!current||relayStage>=current.stages.length)return;
+  $('relay-btn').disabled=true;
+  const stage=current.stages[relayStage]; relayStage++;
+  await delay(500);
+  const pill=$('th-pill');
+  pill.textContent=stage.pill.charAt(0).toUpperCase()+stage.pill.slice(1);
+  pill.className=`th-status-pill ${stage.pill}`;
+  $('sb-dot').className=`st-dot ${stage.dot}`;
+  $('sb-txt').textContent=stage.txt; $('sb-sub').textContent=stage.sub;
+  if(stage.pill==='sent') document.querySelectorAll('#thread-scroll .tick').forEach(t=>t.classList.add('on'));
+  if(stage.notif){await delay(400);fireNotif(stage.notif.title,stage.notif.body);}
+  if(stage.reply){await delay(700);appendReply(stage.reply,true);}
+  if(stage.summary){await delay(400);$('summary-text').innerHTML=stage.summary;$('summary-bar').classList.add('show');$('summary-bar').scrollIntoView({behavior:'smooth',block:'nearest'});}
+  if(relayStage<current.stages.length){const labels=['⚡ Simulate delivery','⚡ Simulate opened','⚡ Simulate reply','⚡ Simulate resolution'];$('relay-btn').textContent=labels[relayStage]||'⚡ Continue';$('relay-btn').disabled=false;}
+  else $('relay-btn').textContent='✓ Resolved';
+}
+</script>
+</body>
+</html>
