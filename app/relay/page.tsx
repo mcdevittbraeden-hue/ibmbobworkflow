@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getDemoSession } from '@/lib/demoSession';
 import { AppNav } from '@/components/AppNav';
-import { RelayApp } from '@/components/relay/RelayApp';
+import { RelayLoader } from '@/components/relay/RelayLoader';
 
 export const metadata: Metadata = {
   title: 'Relay — FriarAI',
@@ -13,7 +13,7 @@ export default function RelayPage() {
   return (
     <div className="min-h-screen bg-white">
       <AppNav active="relay" email={session.user.email} />
-      <RelayApp />
+      <RelayLoader />
     </div>
   );
 }

@@ -39,7 +39,8 @@ export interface RelayStage {
 }
 
 export interface RelayIssue {
-  key: RelayIssueKey;
+  /** A built-in scenario, or 'custom' for a case written by the AI analysis. */
+  key: RelayIssueKey | 'custom';
   confirm: string;
   tags: string[];
   people: RelayPerson[];
@@ -62,7 +63,7 @@ export const RELAY_ISSUES: Record<RelayIssueKey, RelayIssue> = {
     ],
     emailTo: 'Sarah Mitchell <s.mitchell@providence.edu>, James Okafor <j.okafor@providence.edu>',
     emailSubject: 'Urgent: Account Hold Blocking Final Course Registration',
-    emailBody: 'Dear Sarah and James,\n\nI am a senior at Providence College and have confirmed my tuition payment for this semester. However, there is an active hold on my account preventing me from registering for the final course required for my May graduation.\n\nI have already secured a job offer contingent on graduating on time, so resolving this quickly is critical.\n\nCould you please review my account, verify payment receipt, and clear the hold so I can complete registration?\n\nThank you,\nAlex Carter · Class of 2025 · a.carter@providence.edu',
+    emailBody: 'Dear Sarah and James,\n\nI am a senior at Providence College and have confirmed my tuition payment for this semester. However, there is an active hold on my account preventing me from registering for the final course required for my May graduation.\n\nI have already secured a job offer contingent on graduating on time, so resolving this quickly is critical.\n\nCould you please review my account, verify payment receipt, and clear the hold so I can complete registration?\n\nThank you,\nAlex Johnson · ajohnson26@providence.edu',
     relayTitle: 'Registration Hold',
     caseId: 'RL-1045',
     stages: [
@@ -82,7 +83,7 @@ export const RELAY_ISSUES: Record<RelayIssueKey, RelayIssue> = {
     ],
     emailTo: 'Marcus Rivera <m.rivera@providence.edu>, Claire Larson <c.larson@providence.edu>',
     emailSubject: 'Maintenance: Broken AC — Dorm (2 weeks unresolved)',
-    emailBody: 'Dear Marcus and Claire,\n\nThe AC in my dorm room has been non-functional for two weeks. I reported this to my RA but have not received a response.\n\nThis is significantly affecting my ability to study and sleep. Could you please schedule a repair?\n\nThank you,\nAlex Carter · Class of 2025',
+    emailBody: 'Dear Marcus and Claire,\n\nThe AC in my dorm room has been non-functional for two weeks. I reported this to my RA but have not received a response.\n\nThis is significantly affecting my ability to study and sleep. Could you please schedule a repair?\n\nThank you,\nAlex Johnson · ajohnson26@providence.edu',
     relayTitle: 'Dorm AC Repair',
     caseId: 'RL-1046',
     stages: [
@@ -102,7 +103,7 @@ export const RELAY_ISSUES: Record<RelayIssueKey, RelayIssue> = {
     ],
     emailTo: 'Diana Park <d.park@providence.edu>, Thomas Webb <t.webb@providence.edu>',
     emailSubject: 'Urgent: Financial Aid Disbursement Pending — Classes Start Monday',
-    emailBody: 'Dear Diana and Thomas,\n\nMy financial aid disbursement is showing as pending, and classes begin Monday. Could you please review my status and advise on when funds will be processed?\n\nThank you,\nAlex Carter · Class of 2025',
+    emailBody: 'Dear Diana and Thomas,\n\nMy financial aid disbursement is showing as pending, and classes begin Monday. Could you please review my status and advise on when funds will be processed?\n\nThank you,\nAlex Johnson · ajohnson26@providence.edu',
     relayTitle: 'Financial Aid Delay',
     caseId: 'RL-1047',
     stages: [
@@ -119,7 +120,7 @@ export const RELAY_ISSUES: Record<RelayIssueKey, RelayIssue> = {
     people: [{ initials: 'KN', name: 'Kevin Nash', title: 'IT Help Desk Lead', dept: 'IT Services' }],
     emailTo: 'Kevin Nash <k.nash@providence.edu>',
     emailSubject: 'Escalation: Blackboard Access — No Response in 4 Days',
-    emailBody: 'Dear Kevin,\n\nI have been unable to access Blackboard for four days. I submitted a ticket but have not received a response.\n\nThis is preventing me from accessing course materials and submitting assignments.\n\nCould you please escalate and restore my access?\n\nThank you,\nAlex Carter · Class of 2025',
+    emailBody: 'Dear Kevin,\n\nI have been unable to access Blackboard for four days. I submitted a ticket but have not received a response.\n\nThis is preventing me from accessing course materials and submitting assignments.\n\nCould you please escalate and restore my access?\n\nThank you,\nAlex Johnson · ajohnson26@providence.edu',
     relayTitle: 'Blackboard Access',
     caseId: 'RL-1048',
     stages: [
