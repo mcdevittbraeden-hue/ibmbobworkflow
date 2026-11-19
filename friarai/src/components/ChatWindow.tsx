@@ -33,12 +33,10 @@ export default function ChatWindow({
   const bottomRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Subscribe to new messages in real time
   useEffect(() => {
     const channel = supabase
       .channel(`conversation:${conversationId}`)
@@ -53,7 +51,6 @@ export default function ChatWindow({
         (payload) => {
           const newMsg = payload.new as Message
           setMessages((prev) => {
-            // Avoid duplicates (we optimistically add sent messages)
             if (prev.find((m) => m.id === newMsg.id)) return prev
             return [...prev, newMsg]
           })
@@ -74,7 +71,6 @@ export default function ChatWindow({
     setSending(true)
     setInput('')
 
-    // Optimistic add
     const tempId = `temp-${Date.now()}`
     const optimistic: Message = {
       id: tempId,
@@ -91,7 +87,6 @@ export default function ChatWindow({
     })
 
     if (error) {
-      // Rollback optimistic message
       setMessages((prev) => prev.filter((m) => m.id !== tempId))
       console.error('Send message error:', error)
     }
@@ -107,39 +102,56 @@ export default function ChatWindow({
     .slice(0, 2)
 
   return (
-    <div className="flex flex-col h-screen bg-black">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg)' }}>
       {/* Chat header */}
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-800 bg-black">
-        <Link href="/dashboard" className="text-gray-500 hover:text-white transition-colors mr-1">
-          ←
-        </Link>
-        <div className="w-9 h-9 rounded-full bg-[#FDBB30]/20 border border-[#FDBB30]/40 flex items-center justify-center">
-          <span className="text-[#FDBB30] font-semibold text-xs">{otherInitials}</span>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '14px 24px',
+        borderBottom: '1px solid var(--border)',
+        background: 'var(--white)',
+      }}>
+        <Link href="/dashboard" style={{
+          color: 'var(--muted)', textDecoration: 'none', fontSize: 16,
+          marginRight: 4, lineHeight: 1,
+        }}>←</Link>
+        <div style={{
+          width: 34, height: 34, borderRadius: '50%',
+          background: 'var(--black)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 11, fontWeight: 800, color: '#fff', flexShrink: 0,
+          letterSpacing: '-0.3px',
+        }}>
+          {otherInitials}
         </div>
         <div>
-          <p className="text-white font-semibold text-sm">{otherUser.name}</p>
-          <p className="text-gray-500 text-xs">{otherUser.major}</p>
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--black)', letterSpacing: '-0.1px' }}>{otherUser.name}</p>
+          <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 1 }}>{otherUser.major}</p>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+      <div style={{
+        flex: 1, overflowY: 'auto', padding: '24px',
+        display: 'flex', flexDirection: 'column', gap: 12,
+      }}>
         {messages.length === 0 && (
-          <div className="text-center pt-16">
-            <p className="text-gray-500 text-sm">Start the conversation with {otherUser.name.split(' ')[0]}!</p>
+          <div style={{ textAlign: 'center', paddingTop: 64 }}>
+            <p style={{ fontSize: 13, color: 'var(--muted-2)' }}>
+              Start the conversation with {otherUser.name.split(' ')[0]}!
+            </p>
           </div>
         )}
         {messages.map((msg) => {
           const isMe = msg.sender_id === currentUserId
           return (
-            <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-              <div
-                className={`max-w-xs md:max-w-md px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                  isMe
-                    ? 'bg-[#FDBB30] text-black rounded-br-sm'
-                    : 'bg-gray-800 text-white rounded-bl-sm'
-                }`}
-              >
+            <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
+              <div style={{
+                maxWidth: '72%', padding: '11px 15px',
+                borderRadius: 14, fontSize: 13.5, lineHeight: 1.65,
+                ...(isMe
+                  ? { background: 'var(--black)', color: '#fff', borderBottomRightRadius: 4 }
+                  : { background: 'var(--white)', border: '1px solid var(--border)', color: 'var(--black)', borderBottomLeftRadius: 4 }),
+              }}>
                 {msg.content}
               </div>
             </div>
@@ -149,22 +161,39 @@ export default function ChatWindow({
       </div>
 
       {/* Input */}
-      <form onSubmit={sendMessage} className="px-6 py-4 border-t border-gray-800 bg-black">
-        <div className="flex gap-3">
+      <form onSubmit={sendMessage} style={{
+        padding: '12px 20px',
+        borderTop: '1px solid var(--border)',
+        background: 'var(--white)',
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'flex-end', gap: 10,
+          background: 'var(--surface)', border: '1px solid var(--border-mid)',
+          borderRadius: 'var(--radius)', padding: '8px 8px 8px 16px',
+          transition: 'border-color 0.15s, box-shadow 0.15s',
+        }}>
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={`Message ${otherUser.name.split(' ')[0]}…`}
-            className="flex-1 px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-[#FDBB30] text-sm"
+            style={{
+              flex: 1, background: 'none', border: 'none', outline: 'none',
+              color: 'var(--black)', fontSize: 13, fontFamily: 'inherit', padding: '4px 0',
+            }}
           />
           <button
             type="submit"
             disabled={!input.trim() || sending}
-            className="px-5 py-2.5 bg-[#FDBB30] text-black font-semibold rounded-xl hover:bg-yellow-400 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            Send
-          </button>
+            style={{
+              width: 36, height: 36, borderRadius: 9,
+              background: 'var(--black)', border: 'none', color: '#fff',
+              fontSize: 16, cursor: !input.trim() || sending ? 'not-allowed' : 'pointer',
+              opacity: !input.trim() || sending ? 0.3 : 1,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0, transition: 'opacity 0.12s',
+            }}
+          >↑</button>
         </div>
       </form>
     </div>

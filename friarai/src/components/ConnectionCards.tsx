@@ -54,8 +54,6 @@ export default function ConnectionCards() {
     }))
     setInput('')
 
-    // Simulate a reply after 1.2s
-    const firstName = matchName.split(' ')[0]
     const replies = [
       `Hey! Great to connect. I'd love to chat more about that.`,
       `Absolutely — I was thinking the same thing. When are you free?`,
@@ -75,35 +73,54 @@ export default function ConnectionCards() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
       {DEMO_MATCHES.map((match) => {
         const initials = match.name.split(' ').map((n) => n[0]).join('').toUpperCase()
         const isOpen = chatOpen === match.id
 
         return (
-          <div key={match.id} className="bg-gray-900 rounded-xl border border-gray-800 flex flex-col overflow-hidden">
+          <div key={match.id} style={{
+            background: 'var(--white)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            overflow: 'hidden',
+            display: 'flex', flexDirection: 'column',
+          }}>
             {!isOpen ? (
-              <div className="p-5 flex flex-col flex-1">
+              <div style={{ padding: 20, display: 'flex', flexDirection: 'column', flex: 1 }}>
                 {/* Avatar + name */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-[#FDBB30]/20 border border-[#FDBB30]/40 flex items-center justify-center flex-shrink-0">
-                    <span className="text-[#FDBB30] font-semibold text-sm">{initials}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                  <div style={{
+                    width: 38, height: 38, borderRadius: '50%',
+                    background: 'var(--black)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 12, fontWeight: 800, color: '#fff', flexShrink: 0,
+                    letterSpacing: '-0.3px',
+                  }}>
+                    {initials}
                   </div>
                   <div>
-                    <p className="text-white font-semibold text-sm">{match.name}</p>
-                    <p className="text-gray-500 text-xs">{match.major} · &apos;{String(match.grad_year).slice(2)}</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--black)', letterSpacing: '-0.1px' }}>{match.name}</p>
+                    <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 1 }}>{match.major} · &apos;{String(match.grad_year).slice(2)}</p>
                   </div>
                 </div>
 
                 {/* AI reason */}
-                <p className="text-gray-300 text-sm leading-relaxed mb-3 flex-1">
+                <p style={{
+                  fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.65,
+                  marginBottom: 14, flex: 1,
+                }}>
                   &ldquo;{match.reason}&rdquo;
                 </p>
 
                 {/* Interest tags */}
-                <div className="flex flex-wrap gap-1.5 mb-4">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 16 }}>
                   {match.interests.map((interest) => (
-                    <span key={interest} className="px-2 py-0.5 bg-gray-800 border border-gray-700 rounded-full text-gray-400 text-xs">
+                    <span key={interest} style={{
+                      fontSize: 11, fontWeight: 600, padding: '3px 9px',
+                      background: 'var(--surface)', border: '1px solid var(--border-mid)',
+                      borderRadius: 100, color: 'var(--muted)',
+                    }}>
                       {interest}
                     </span>
                   ))}
@@ -111,32 +128,64 @@ export default function ConnectionCards() {
 
                 <button
                   onClick={() => setChatOpen(match.id)}
-                  className="w-full py-2 bg-[#FDBB30] text-black font-semibold rounded-lg hover:bg-yellow-400 transition-colors text-sm"
+                  style={{
+                    width: '100%', padding: '10px 0',
+                    background: 'var(--black)', color: '#fff',
+                    fontSize: 13, fontWeight: 700,
+                    border: 'none', borderRadius: 100,
+                    cursor: 'pointer', letterSpacing: '-0.1px',
+                    transition: 'background 0.12s',
+                  }}
                 >
                   Start Chat →
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col h-72">
+              <div style={{ display: 'flex', flexDirection: 'column', height: 280 }}>
                 {/* Chat header */}
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800">
-                  <button onClick={() => setChatOpen(null)} className="text-gray-500 hover:text-white text-sm mr-1">←</button>
-                  <div className="w-7 h-7 rounded-full bg-[#FDBB30]/20 border border-[#FDBB30]/40 flex items-center justify-center">
-                    <span className="text-[#FDBB30] font-semibold text-xs">{initials}</span>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '10px 14px',
+                  borderBottom: '1px solid var(--border)',
+                }}>
+                  <button
+                    onClick={() => setChatOpen(null)}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      color: 'var(--muted)', fontSize: 14, padding: 0,
+                    }}
+                  >←</button>
+                  <div style={{
+                    width: 26, height: 26, borderRadius: '50%',
+                    background: 'var(--black)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 10, fontWeight: 800, color: '#fff',
+                  }}>
+                    {initials}
                   </div>
-                  <span className="text-white text-sm font-medium">{match.name}</span>
+                  <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--black)' }}>{match.name}</span>
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+                <div style={{
+                  flex: 1, overflowY: 'auto', padding: '12px 14px',
+                  display: 'flex', flexDirection: 'column', gap: 8,
+                }}>
                   {!(messages[match.id]?.length) && (
-                    <p className="text-gray-600 text-xs text-center pt-4">Say hi to {match.name.split(' ')[0]}!</p>
+                    <p style={{ color: 'var(--muted-2)', fontSize: 11, textAlign: 'center', paddingTop: 16 }}>
+                      Say hi to {match.name.split(' ')[0]}!
+                    </p>
                   )}
                   {(messages[match.id] ?? []).map((msg, i) => (
-                    <div key={i} className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[80%] px-3 py-1.5 rounded-xl text-xs leading-relaxed ${
-                        msg.from === 'me' ? 'bg-[#FDBB30] text-black' : 'bg-gray-800 text-white'
-                      }`}>
+                    <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
+                      <div style={{
+                        maxWidth: '80%', padding: '8px 12px',
+                        borderRadius: 12,
+                        ...(msg.from === 'me'
+                          ? { background: 'var(--black)', color: '#fff', borderBottomRightRadius: 3 }
+                          : { background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--black)', borderBottomLeftRadius: 3 }),
+                        fontSize: 12, lineHeight: 1.6,
+                      }}>
                         {msg.text}
                       </div>
                     </div>
@@ -144,21 +193,32 @@ export default function ConnectionCards() {
                 </div>
 
                 {/* Input */}
-                <div className="flex gap-2 px-3 pb-3">
+                <div style={{
+                  display: 'flex', gap: 8, padding: '8px 12px',
+                  borderTop: '1px solid var(--border)',
+                }}>
                   <input
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage(match.id, match.name)}
                     placeholder="Message…"
-                    className="flex-1 px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#FDBB30] text-xs"
+                    style={{
+                      flex: 1, padding: '7px 12px',
+                      background: 'var(--surface)', border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius-sm)', color: 'var(--black)',
+                      fontSize: 12, outline: 'none',
+                    }}
                   />
                   <button
                     onClick={() => sendMessage(match.id, match.name)}
-                    className="px-3 py-1.5 bg-[#FDBB30] text-black font-semibold rounded-lg text-xs hover:bg-yellow-400 transition-colors"
-                  >
-                    Send
-                  </button>
+                    style={{
+                      width: 32, height: 32, borderRadius: 8,
+                      background: 'var(--black)', border: 'none',
+                      color: '#fff', fontSize: 14, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >↑</button>
                 </div>
               </div>
             )}

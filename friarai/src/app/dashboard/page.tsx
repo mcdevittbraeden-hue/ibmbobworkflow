@@ -10,45 +10,65 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black">
+    <main style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <Nav userName={profile.name} />
-      <div className="max-w-6xl mx-auto px-6 py-10">
+      <div style={{ maxWidth: 1024, margin: '0 auto', padding: '40px 32px' }}>
+
         {/* Welcome */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white">
-            Welcome back, Jordan 👋
+        <div style={{ marginBottom: 28 }}>
+          <h1 style={{
+            fontSize: 28, fontWeight: 900, letterSpacing: '-1px',
+            color: 'var(--black)', marginBottom: 6,
+          }}>
+            Welcome back, Jordan
           </h1>
-          <p className="text-gray-400 mt-1 text-sm">
+          <p style={{ fontSize: 13, color: 'var(--muted)' }}>
             Here&apos;s who you should meet and what to get involved in.
           </p>
         </div>
 
-        {/* Profile chip */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          <span className="px-3 py-1 bg-[#FDBB30]/10 border border-[#FDBB30]/30 rounded-full text-[#FDBB30] text-xs font-medium">
-            Finance
+        {/* Profile chips */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 36 }}>
+          <span style={{
+            fontSize: 11, fontWeight: 700, padding: '4px 12px',
+            background: 'var(--black)', color: '#fff',
+            borderRadius: 100, letterSpacing: '0.02em',
+          }}>
+            {profile.major}
           </span>
           {profile.interests.map((interest) => (
-            <span key={interest} className="px-3 py-1 bg-gray-800 border border-gray-700 rounded-full text-gray-400 text-xs">
+            <span key={interest} style={{
+              fontSize: 11, fontWeight: 600, padding: '4px 12px',
+              background: 'var(--white)', border: '1px solid var(--border-mid)',
+              borderRadius: 100, color: 'var(--muted)',
+            }}>
               {interest}
             </span>
           ))}
         </div>
 
         {/* Connection cards */}
-        <section className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white">People You Should Meet</h2>
-            <span className="text-xs text-gray-500">Matched by AI · Based on your profile</span>
+        <section style={{ marginBottom: 48 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 900, letterSpacing: '-0.6px', color: 'var(--black)' }}>
+              People You Should Meet
+            </h2>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-2)' }}>
+              Matched by AI · Based on your profile
+            </span>
           </div>
           <ConnectionCards />
         </section>
 
         {/* Club recommendations */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-white">Clubs For You</h2>
-            <span className="text-xs text-gray-500">Recommended by FriarAI</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 900, letterSpacing: '-0.6px', color: 'var(--black)' }}>
+              Clubs For You
+            </h2>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-2)' }}>
+              Recommended by FriarAI
+            </span>
           </div>
           <ClubRecommendations />
         </section>

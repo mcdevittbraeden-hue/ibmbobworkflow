@@ -2,53 +2,87 @@ import Link from 'next/link'
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-black flex flex-col">
+    <main style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Nav */}
-      <nav className="flex items-center justify-between px-8 py-5 border-b border-gray-800">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#FDBB30] flex items-center justify-center">
-            <span className="text-black font-bold text-sm">F</span>
-          </div>
-          <span className="text-white font-semibold text-lg tracking-tight">FriarAI</span>
+      <nav style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '20px 40px',
+        borderBottom: '1px solid var(--border)',
+        background: 'var(--white)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 30, height: 30, borderRadius: 8, background: 'var(--black)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 13, fontWeight: 900, color: '#fff', letterSpacing: '-0.3px',
+          }}>F</div>
+          <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.4px', color: 'var(--black)' }}>FriarAI</span>
         </div>
-        <Link
-          href="/dashboard"
-          className="px-4 py-2 text-sm bg-[#FDBB30] text-black font-semibold rounded-lg hover:bg-yellow-400 transition-colors"
-        >
+        <Link href="/dashboard" style={{
+          padding: '10px 22px',
+          background: 'var(--black)', color: '#fff',
+          fontSize: 13, fontWeight: 700,
+          borderRadius: 100, textDecoration: 'none',
+          letterSpacing: '-0.2px',
+          transition: 'background 0.15s',
+        }}>
           See the demo →
         </Link>
       </nav>
 
       {/* Hero */}
-      <section className="flex-1 flex flex-col items-center justify-center px-6 text-center py-24">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FDBB30]/10 border border-[#FDBB30]/30 rounded-full text-[#FDBB30] text-xs font-medium mb-8">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#FDBB30]"></span>
+      <section style={{
+        flex: 1, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '80px 24px', textAlign: 'center',
+      }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
+          color: 'var(--muted)', background: 'var(--surface)',
+          border: '1px solid var(--border-mid)', borderRadius: 100,
+          padding: '5px 14px', marginBottom: 32,
+        }}>
+          <span style={{
+            width: 5, height: 5, borderRadius: '50%', background: 'var(--black)',
+            display: 'inline-block', animation: 'pulse 1.8s ease-in-out infinite',
+          }} />
           Providence College Student Success Platform
         </div>
 
-        <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight max-w-3xl mb-6">
+        <h1 style={{
+          fontSize: 'clamp(36px, 6vw, 64px)', fontWeight: 900,
+          letterSpacing: '-2.5px', lineHeight: 1.08,
+          color: 'var(--black)', marginBottom: 20, maxWidth: 640,
+        }}>
           Find your people.<br />
-          <span className="text-[#FDBB30]">Thrive at PC.</span>
+          <span style={{ opacity: 0.3 }}>Thrive at PC.</span>
         </h1>
 
-        <p className="text-lg text-gray-400 max-w-xl mb-10 leading-relaxed">
+        <p style={{
+          fontSize: 16, color: 'var(--muted)', maxWidth: 460,
+          marginBottom: 36, lineHeight: 1.7,
+        }}>
           FriarAI connects you with students who share your goals, recommends clubs that match your interests,
           and helps you make the most of your time at Providence College.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Link
-            href="/dashboard"
-            className="px-6 py-3 bg-[#FDBB30] text-black font-semibold rounded-lg hover:bg-yellow-400 transition-colors text-sm"
-          >
-            See the demo →
-          </Link>
-        </div>
+        <Link href="/dashboard" style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '13px 28px',
+          background: 'var(--black)', color: '#fff',
+          fontSize: 14, fontWeight: 700,
+          borderRadius: 100, textDecoration: 'none',
+          letterSpacing: '-0.2px',
+          boxShadow: '0 1px 3px rgba(17,17,16,.12), 0 6px 20px rgba(17,17,16,.15)',
+        }}>
+          Try the demo →
+        </Link>
       </section>
 
       {/* Features */}
-      <section className="px-8 pb-24 max-w-5xl mx-auto w-full">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section style={{ padding: '0 40px 80px', maxWidth: 960, margin: '0 auto', width: '100%' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
           {[
             {
               icon: '🤝',
@@ -66,16 +100,25 @@ export default function LandingPage() {
               desc: 'AI analyzes your profile and tells you exactly which clubs and organizations fit your interests and goals.',
             },
           ].map((f) => (
-            <div key={f.title} className="p-6 bg-gray-900 rounded-xl border border-gray-800">
-              <div className="text-2xl mb-3">{f.icon}</div>
-              <h3 className="font-semibold text-white mb-2">{f.title}</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">{f.desc}</p>
+            <div key={f.title} style={{
+              padding: 24,
+              background: 'var(--white)',
+              border: '1px solid var(--border)',
+              borderRadius: 'var(--radius)',
+            }}>
+              <div style={{ fontSize: 24, marginBottom: 12 }}>{f.icon}</div>
+              <h3 style={{ fontWeight: 700, fontSize: 14, color: 'var(--black)', marginBottom: 8, letterSpacing: '-0.2px' }}>{f.title}</h3>
+              <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.65 }}>{f.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <footer className="text-center py-6 border-t border-gray-800 text-xs text-gray-600">
+      <footer style={{
+        textAlign: 'center', padding: '20px',
+        borderTop: '1px solid var(--border)',
+        fontSize: 11, color: 'var(--muted-2)',
+      }}>
         © 2024 FriarAI · Providence College · Built for student success
       </footer>
     </main>

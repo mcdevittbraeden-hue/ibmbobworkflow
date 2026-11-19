@@ -11,25 +11,40 @@ export default function Nav({ userName }: { userName: string }) {
     .slice(0, 2)
 
   return (
-    <nav className="border-b border-gray-800 bg-black px-6 py-4">
-      <div className="max-w-6xl mx-auto flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-[#FDBB30] flex items-center justify-center">
-            <span className="text-black font-bold text-xs">F</span>
-          </div>
-          <span className="text-white font-semibold tracking-tight">FriarAI</span>
-        </Link>
+    <nav style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '14px 32px',
+      borderBottom: '1px solid var(--border)',
+      background: 'var(--white)',
+    }}>
+      <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+        <div style={{
+          width: 28, height: 28, borderRadius: 7, background: 'var(--black)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 11, fontWeight: 900, color: '#fff', letterSpacing: '-0.3px', flexShrink: 0,
+        }}>F</div>
+        <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: '-0.4px', color: 'var(--black)' }}>FriarAI</span>
+      </Link>
 
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="text-sm text-gray-400 hover:text-white transition-colors">
-            Home
-          </Link>
-          <div className="flex items-center gap-3 pl-4 border-l border-gray-800">
-            <div className="w-8 h-8 rounded-full bg-[#FDBB30]/20 border border-[#FDBB30]/40 flex items-center justify-center">
-              <span className="text-[#FDBB30] font-semibold text-xs">{initials}</span>
-            </div>
-            <span className="text-sm text-gray-500">{userName}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <Link href="/dashboard" style={{
+          fontSize: 13, color: 'var(--muted)', textDecoration: 'none', fontWeight: 500,
+        }}>
+          Home
+        </Link>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          paddingLeft: 16, borderLeft: '1px solid var(--border)',
+        }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: '50%',
+            background: 'var(--surface-2)', border: '1.5px solid var(--border-mid)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '-0.2px',
+          }}>
+            {initials}
           </div>
+          <span style={{ fontSize: 13, color: 'var(--muted-2)' }}>{userName}</span>
         </div>
       </div>
     </nav>

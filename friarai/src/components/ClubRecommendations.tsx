@@ -37,32 +37,52 @@ const DEMO_CLUBS = [
 
 export default function ClubRecommendations() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
       {DEMO_CLUBS.map((club) => (
-        <div key={club.id} className="p-5 bg-gray-900 rounded-xl border border-gray-800 flex flex-col">
-          <div className="flex items-start justify-between mb-2">
-            <h3 className="text-white font-semibold text-sm leading-snug">{club.name}</h3>
+        <div key={club.id} style={{
+          padding: 20,
+          background: 'var(--white)',
+          border: '1px solid var(--border)',
+          borderRadius: 'var(--radius)',
+          display: 'flex', flexDirection: 'column',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
+            <h3 style={{
+              fontSize: 13, fontWeight: 700, color: 'var(--black)',
+              lineHeight: 1.35, letterSpacing: '-0.1px',
+            }}>{club.name}</h3>
             <a
               href={club.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-[#FDBB30] hover:underline ml-3 flex-shrink-0"
+              style={{
+                fontSize: 11, fontWeight: 700, color: 'var(--black)',
+                textDecoration: 'underline', marginLeft: 12, flexShrink: 0,
+                whiteSpace: 'nowrap',
+              }}
             >
               Learn more →
             </a>
           </div>
 
-          <p className="text-gray-400 text-xs leading-relaxed mb-3 flex-1">{club.reason}</p>
+          <p style={{
+            fontSize: 12, color: 'var(--muted)', lineHeight: 1.65,
+            marginBottom: 12, flex: 1,
+          }}>{club.reason}</p>
 
-          <div className="flex flex-wrap gap-1.5 mb-2">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
             {club.tags.map((tag) => (
-              <span key={tag} className="px-2 py-0.5 bg-gray-800 border border-gray-700 rounded-full text-gray-500 text-xs">
+              <span key={tag} style={{
+                fontSize: 10.5, fontWeight: 600, padding: '3px 9px',
+                background: 'var(--surface)', border: '1px solid var(--border-mid)',
+                borderRadius: 100, color: 'var(--muted)',
+              }}>
                 {tag}
               </span>
             ))}
           </div>
 
-          <p className="text-gray-600 text-xs">{club.meeting_info}</p>
+          <p style={{ fontSize: 11, color: 'var(--muted-2)' }}>{club.meeting_info}</p>
         </div>
       ))}
     </div>

@@ -31,43 +31,71 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <main style={{
+      minHeight: '100vh', background: 'var(--bg)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px',
+    }}>
+      <div style={{ width: '100%', maxWidth: 380 }}>
         {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-full bg-[#FDBB30] flex items-center justify-center mb-3">
-            <span className="text-black font-bold text-lg">F</span>
-          </div>
-          <h1 className="text-white font-semibold text-xl">Welcome back</h1>
-          <p className="text-gray-500 text-sm mt-1">Sign in to FriarAI</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 36 }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: 11, background: 'var(--black)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 16, fontWeight: 900, color: '#fff', letterSpacing: '-0.3px',
+            marginBottom: 14,
+          }}>F</div>
+          <h1 style={{ fontSize: 22, fontWeight: 900, letterSpacing: '-0.8px', color: 'var(--black)', marginBottom: 4 }}>
+            Welcome back
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--muted)' }}>Sign in to FriarAI</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
-            <label className="block text-sm text-gray-400 mb-1.5">Email</label>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-2)', marginBottom: 7 }}>
+              Email
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@providence.edu"
               required
-              className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#FDBB30] transition-colors text-sm"
+              style={{
+                width: '100%', padding: '11px 14px',
+                background: 'var(--white)', border: '1px solid var(--border-mid)',
+                borderRadius: 'var(--radius)', color: 'var(--black)',
+                fontSize: 13, outline: 'none',
+                transition: 'border-color 0.15s, box-shadow 0.15s',
+              }}
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1.5">Password</label>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-2)', marginBottom: 7 }}>
+              Password
+            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#FDBB30] transition-colors text-sm"
+              style={{
+                width: '100%', padding: '11px 14px',
+                background: 'var(--white)', border: '1px solid var(--border-mid)',
+                borderRadius: 'var(--radius)', color: 'var(--black)',
+                fontSize: 13, outline: 'none',
+                transition: 'border-color 0.15s, box-shadow 0.15s',
+              }}
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+            <div style={{
+              padding: '11px 14px',
+              background: '#fff5f5', border: '1px solid #fca5a5',
+              borderRadius: 'var(--radius-sm)', fontSize: 12, color: '#b91c1c',
+            }}>
               {error}
             </div>
           )}
@@ -75,15 +103,24 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-[#FDBB30] text-black font-semibold rounded-lg hover:bg-yellow-400 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              width: '100%', padding: '12px 0',
+              background: 'var(--black)', color: '#fff',
+              fontSize: 13, fontWeight: 700,
+              border: 'none', borderRadius: 100,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.4 : 1,
+              letterSpacing: '-0.1px', marginTop: 4,
+              transition: 'background 0.12s',
+            }}
           >
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--muted-2)', marginTop: 24 }}>
           Don&apos;t have an account?{' '}
-          <Link href="/signup" className="text-[#FDBB30] hover:underline">
+          <Link href="/signup" style={{ color: 'var(--black)', fontWeight: 700, textDecoration: 'underline' }}>
             Create one
           </Link>
         </p>

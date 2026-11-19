@@ -84,203 +84,220 @@ export default function OnboardingPage() {
     }
   }
 
+  const inputStyle = {
+    width: '100%', padding: '11px 14px',
+    background: '#fff', border: '1px solid var(--border-mid)',
+    borderRadius: 'var(--radius)', color: 'var(--black)',
+    fontSize: 13, outline: 'none',
+    fontFamily: 'inherit',
+  }
+
+  const primaryBtn = (disabled?: boolean) => ({
+    padding: '11px 0', width: '100%',
+    background: disabled ? 'var(--black)' : 'var(--black)', color: '#fff',
+    fontSize: 13, fontWeight: 700,
+    border: 'none', borderRadius: 100,
+    cursor: disabled ? 'not-allowed' as const : 'pointer' as const,
+    opacity: disabled ? 0.3 : 1,
+    letterSpacing: '-0.1px',
+    transition: 'background 0.12s',
+    fontFamily: 'inherit',
+  })
+
+  const ghostBtn = {
+    padding: '11px 20px',
+    background: 'transparent', color: 'var(--muted)',
+    fontSize: 13, fontWeight: 600,
+    border: '1px solid var(--border-mid)', borderRadius: 100,
+    cursor: 'pointer' as const,
+    transition: 'border-color 0.12s',
+    fontFamily: 'inherit',
+  }
+
   return (
-    <main className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="w-full max-w-lg">
-        {/* Header */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-full bg-[#FDBB30] flex items-center justify-center mb-3">
-            <span className="text-black font-bold text-lg">F</span>
-          </div>
-          <h1 className="text-white font-bold text-2xl">Build your profile</h1>
-          <p className="text-gray-400 text-sm mt-1">Help FriarAI find the right connections for you</p>
+    <main style={{
+      minHeight: '100vh', background: 'var(--bg)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px',
+    }}>
+      <div style={{ width: '100%', maxWidth: 520 }}>
+
+        {/* Logo + header */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 36 }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: 11, background: 'var(--black)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 16, fontWeight: 900, color: '#fff', letterSpacing: '-0.3px',
+            marginBottom: 14,
+          }}>F</div>
+          <h1 style={{ fontSize: 24, fontWeight: 900, letterSpacing: '-0.9px', color: 'var(--black)', marginBottom: 4 }}>
+            Build your profile
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--muted)' }}>Help FriarAI find the right connections for you</p>
         </div>
 
-        {/* Progress */}
-        <div className="flex gap-2 mb-8">
+        {/* Step dots */}
+        <div style={{ display: 'flex', gap: 5, marginBottom: 32 }}>
           {([1, 2, 3] as Step[]).map((s) => (
-            <div
-              key={s}
-              className={`flex-1 h-1 rounded-full transition-colors ${
-                s <= step ? 'bg-[#FDBB30]' : 'bg-gray-800'
-              }`}
-            />
+            <div key={s} style={{
+              flex: 1, height: 3, borderRadius: 3,
+              background: s <= step ? 'var(--black)' : 'var(--border-mid)',
+              opacity: s < step ? 0.3 : 1,
+              transition: 'background 0.2s',
+            }} />
           ))}
         </div>
 
-        {/* Step 1 — Basic info */}
+        {/* Step 1 */}
         {step === 1 && (
-          <div className="space-y-5">
-            <h2 className="text-white font-semibold text-lg">Tell us about yourself</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Full name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Alex Johnson"
-                className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#FDBB30] text-sm"
-              />
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-2)', marginBottom: 6 }}>Step 1 of 3</p>
+              <h2 style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.7px', color: 'var(--black)' }}>Tell us about yourself</h2>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Major</label>
-              <select
-                value={major}
-                onChange={(e) => setMajor(e.target.value)}
-                className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-[#FDBB30] text-sm"
-              >
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-2)', marginBottom: 7 }}>Full name</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Alex Johnson" style={inputStyle} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-2)', marginBottom: 7 }}>Major</label>
+              <select value={major} onChange={(e) => setMajor(e.target.value)} style={{ ...inputStyle, appearance: 'none' as const }}>
                 <option value="">Select your major</option>
-                {MAJORS.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
+                {MAJORS.map((m) => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Graduation year</label>
-              <div className="flex gap-2">
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-2)', marginBottom: 7 }}>Graduation year</label>
+              <div style={{ display: 'flex', gap: 8 }}>
                 {GRAD_YEARS.map((y) => (
-                  <button
-                    key={y}
-                    onClick={() => setGradYear(y)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      gradYear === y
-                        ? 'bg-[#FDBB30] text-black'
-                        : 'bg-gray-900 border border-gray-700 text-gray-400 hover:border-gray-500'
-                    }`}
-                  >
+                  <button key={y} onClick={() => setGradYear(y)} style={{
+                    flex: 1, padding: '10px 0',
+                    background: gradYear === y ? 'var(--black)' : 'var(--white)',
+                    color: gradYear === y ? '#fff' : 'var(--muted)',
+                    border: `1px solid ${gradYear === y ? 'var(--black)' : 'var(--border-mid)'}`,
+                    borderRadius: 'var(--radius-sm)', fontSize: 13, fontWeight: 600,
+                    cursor: 'pointer', transition: 'all 0.12s', fontFamily: 'inherit',
+                  }}>
                     {y}
                   </button>
                 ))}
               </div>
             </div>
-            <button
-              onClick={() => setStep(2)}
-              disabled={!name || !major}
-              className="w-full py-2.5 bg-[#FDBB30] text-black font-semibold rounded-lg hover:bg-yellow-400 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed mt-2"
-            >
+            <button onClick={() => setStep(2)} disabled={!name || !major} style={primaryBtn(!name || !major)}>
               Continue →
             </button>
           </div>
         )}
 
-        {/* Step 2 — Interests */}
+        {/* Step 2 */}
         {step === 2 && (
-          <div className="space-y-5">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div>
-              <h2 className="text-white font-semibold text-lg">What are you into?</h2>
-              <p className="text-gray-500 text-sm mt-1">Pick up to 5 interests. These power your matches.</p>
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-2)', marginBottom: 6 }}>Step 2 of 3</p>
+              <h2 style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.7px', color: 'var(--black)', marginBottom: 4 }}>What are you into?</h2>
+              <p style={{ fontSize: 12, color: 'var(--muted)' }}>Pick up to 5 interests. These power your matches.</p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
               {INTEREST_SUGGESTIONS.map((interest) => (
-                <button
-                  key={interest}
-                  onClick={() => toggleInterest(interest)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                    interests.includes(interest)
-                      ? 'bg-[#FDBB30] text-black'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700'
-                  }`}
-                >
+                <button key={interest} onClick={() => toggleInterest(interest)} style={{
+                  fontSize: 12, fontWeight: 500, padding: '6px 13px',
+                  background: interests.includes(interest) ? 'var(--black)' : 'var(--white)',
+                  color: interests.includes(interest) ? '#fff' : 'var(--muted)',
+                  border: `1px solid ${interests.includes(interest) ? 'var(--black)' : 'var(--border-mid)'}`,
+                  borderRadius: 100, cursor: 'pointer',
+                  transition: 'all 0.12s', fontFamily: 'inherit',
+                }}>
                   {interest}
                 </button>
               ))}
             </div>
 
-            <div className="flex gap-2">
+            <div style={{ display: 'flex', gap: 8 }}>
               <input
                 type="text"
                 value={customInterest}
                 onChange={(e) => setCustomInterest(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addCustomInterest()}
                 placeholder="Add your own…"
-                className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:outline-none focus:border-[#FDBB30] text-sm"
+                style={{ ...inputStyle, flex: 1 }}
               />
-              <button
-                onClick={addCustomInterest}
-                className="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors"
-              >
-                Add
-              </button>
+              <button onClick={addCustomInterest} style={{
+                padding: '11px 18px',
+                background: 'var(--surface-2)', color: 'var(--black)',
+                border: '1px solid var(--border-mid)', borderRadius: 'var(--radius-sm)',
+                fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+              }}>Add</button>
             </div>
 
             {interests.length > 0 && (
               <div>
-                <p className="text-xs text-gray-500 mb-2">Selected ({interests.length}/5):</p>
-                <div className="flex flex-wrap gap-2">
+                <p style={{ fontSize: 11, color: 'var(--muted-2)', marginBottom: 8 }}>Selected ({interests.length}/5):</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {interests.map((i) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1 bg-[#FDBB30]/20 border border-[#FDBB30]/40 rounded-full text-[#FDBB30] text-xs flex items-center gap-1.5"
-                    >
+                    <span key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      fontSize: 12, fontWeight: 600, padding: '4px 10px 4px 12px',
+                      background: 'var(--surface-2)', border: '1px solid var(--border-mid)',
+                      borderRadius: 100, color: 'var(--black)',
+                    }}>
                       {i}
-                      <button onClick={() => toggleInterest(i)} className="hover:text-white">×</button>
+                      <button onClick={() => toggleInterest(i)} style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'var(--muted)', fontSize: 13, padding: 0, lineHeight: 1,
+                      }}>×</button>
                     </span>
                   ))}
                 </div>
               </div>
             )}
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep(1)}
-                className="px-5 py-2.5 border border-gray-700 text-gray-400 rounded-lg text-sm hover:border-gray-500 transition-colors"
-              >
-                ← Back
-              </button>
-              <button
-                onClick={() => setStep(3)}
-                disabled={interests.length === 0}
-                className="flex-1 py-2.5 bg-[#FDBB30] text-black font-semibold rounded-lg hover:bg-yellow-400 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-              >
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setStep(1)} style={ghostBtn}>← Back</button>
+              <button onClick={() => setStep(3)} disabled={interests.length === 0} style={{ ...primaryBtn(interests.length === 0), flex: 1 }}>
                 Continue →
               </button>
             </div>
           </div>
         )}
 
-        {/* Step 3 — Goal */}
+        {/* Step 3 */}
         {step === 3 && (
-          <div className="space-y-5">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div>
-              <h2 className="text-white font-semibold text-lg">What&apos;s your main goal right now?</h2>
-              <p className="text-gray-500 text-sm mt-1">This helps us find the most relevant connections.</p>
+              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted-2)', marginBottom: 6 }}>Step 3 of 3</p>
+              <h2 style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.7px', color: 'var(--black)', marginBottom: 4 }}>What&apos;s your main goal?</h2>
+              <p style={{ fontSize: 12, color: 'var(--muted)' }}>This helps us find the most relevant connections.</p>
             </div>
 
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {GOALS.map((g) => (
-                <button
-                  key={g}
-                  onClick={() => setGoal(g)}
-                  className={`w-full px-4 py-3 rounded-lg text-sm text-left transition-colors ${
-                    goal === g
-                      ? 'bg-[#FDBB30]/15 border border-[#FDBB30] text-white'
-                      : 'bg-gray-900 border border-gray-700 text-gray-300 hover:border-gray-500'
-                  }`}
-                >
+                <button key={g} onClick={() => setGoal(g)} style={{
+                  padding: '13px 16px', textAlign: 'left',
+                  background: goal === g ? 'var(--black)' : 'var(--white)',
+                  color: goal === g ? '#fff' : 'var(--black)',
+                  border: `1px solid ${goal === g ? 'var(--black)' : 'var(--border-mid)'}`,
+                  borderRadius: 'var(--radius)', fontSize: 13, fontWeight: 500,
+                  cursor: 'pointer', transition: 'all 0.12s', fontFamily: 'inherit',
+                  letterSpacing: '-0.1px',
+                }}>
                   {g}
                 </button>
               ))}
             </div>
 
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+              <div style={{
+                padding: '11px 14px',
+                background: '#fff5f5', border: '1px solid #fca5a5',
+                borderRadius: 'var(--radius-sm)', fontSize: 12, color: '#b91c1c',
+              }}>
                 {error}
               </div>
             )}
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep(2)}
-                className="px-5 py-2.5 border border-gray-700 text-gray-400 rounded-lg text-sm hover:border-gray-500 transition-colors"
-              >
-                ← Back
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={!goal || loading}
-                className="flex-1 py-2.5 bg-[#FDBB30] text-black font-semibold rounded-lg hover:bg-yellow-400 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-              >
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setStep(2)} style={ghostBtn}>← Back</button>
+              <button onClick={handleSubmit} disabled={!goal || loading} style={{ ...primaryBtn(!goal || loading), flex: 1 }}>
                 {loading ? 'Setting up your profile…' : 'Find my connections →'}
               </button>
             </div>
