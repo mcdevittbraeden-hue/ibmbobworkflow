@@ -6,13 +6,14 @@ import clsx from 'clsx';
  * rounded logo mark, pill links). One place to add a page for every screen.
  */
 
-export type NavKey = 'dashboard' | 'study' | 'campus' | 'relay' | 'career';
+export type NavKey = 'dashboard' | 'study' | 'campus' | 'relay' | 'connect' | 'career';
 
 const LINKS: Array<{ key: NavKey; href: string; label: string }> = [
   { key: 'dashboard', href: '/dashboard', label: 'Dashboard' },
   { key: 'study', href: '/study', label: 'Study Coach' },
   { key: 'campus', href: '/campus', label: 'Campus' },
   { key: 'relay', href: '/relay', label: 'Relay' },
+  { key: 'connect', href: '/connect', label: 'Connect' },
   { key: 'career', href: '/career', label: 'Career' },
 ];
 

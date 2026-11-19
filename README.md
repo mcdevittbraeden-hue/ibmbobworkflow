@@ -8,7 +8,8 @@
 - **Proactive Alerts** — Surfaces urgent issues (overdue assignments, low grades, degree gaps) before the student asks
 - **AI Chat** — Every response from GPT-4o is grounded in the student's real data, not generic advice
 - **Campus Information** — Office directory, dining, housing and student orgs, plus an AI issue-triage chat (`/campus`)
-- **Relay** — Describe a campus problem → Relay finds who can fix it, drafts one message, and tracks the case from Delivered to Resolved (`/relay`)
+- **Relay** — Describe a campus problem in your own words → FriarAI routes it to the right office in the campus directory, drafts one message, and tracks the case from Delivered to Resolved (`/relay`)
+- **Connect** — Classmates and clubs matched to your profile, with a reason for every match, plus messaging (`/connect`)
 - **Degree Progress** — Visual breakdown of requirements vs. completion
 - **Study Coach** — Upload a syllabus → study calendar, "how do you feel about this exam?" check-ins, when-to-start and what-to-study recommendations, academic risk scores, alerts and study habits (`/study`)
 - **Providence College SSO** — Students sign in with their @providence.edu Microsoft account
@@ -96,6 +97,7 @@ friarai/
 │   ├── study/                    # Step 3 Study Coach
 │   ├── campus/                   # Campus information + issue triage
 │   ├── relay/                    # Relay case tracking
+│   ├── connect/                  # Connect: classmate + club matching, messages
 │   ├── career/                   # Career development + job discovery
 │   ├── login/                    # SSO login page
 │   ├── globals.css               # Design system (Relay tokens + components)
@@ -190,6 +192,8 @@ risk ≥ 55 = At risk, ≥ 35 = Watch
 | `feat/study-coach` | Step 3: Study Coach (academic risk, syllabus → study plan) — merged |
 | `feat/new-feature` | Campus Information page + universal nav — merged |
 | `relay-demo` | Relay demo app + branding guide — merged; Relay is now `/relay` and its design is the app-wide design system |
+| `relay-branding` | Relay redesign prototype — merged; its intro screen, steps, motion and AI analysis are in `/relay` (prototype kept at `relay/demo-redesign.html`) |
+| `relay-ui` / `shep/student-engagement` | Student Engagement app — **not merged as an app**; its features are rebuilt in `/connect` |
 
 ---
 
@@ -205,6 +209,18 @@ npx vercel
 Add all env vars in the Vercel dashboard under **Settings → Environment Variables**.
 
 ---
+
+## Relay and Connect
+
+**Relay** (`/relay`, Gabriel): intro screen on first visit, then four steps: describe → confirm → find who can fix it → review and send, then track the case.
+- `POST /api/relay/analyze`: with `OPENAI_API_KEY`, GPT restates the problem, tags it, **picks 1–2 offices from the campus directory** (`lib/campus/pcData.ts`) and drafts the email. The key stays on the server.
+- Without a key, it builds the case offline: a built-in scenario when it clearly fits, otherwise keyword routing to the matching office, quoting the student's words (`lib/relay/analysis.ts`).
+- Built-in scenarios use placeholder staff names (demo data). AI and offline cases address real offices instead of inventing people.
+
+**Connect** (`/connect`, features from Shep's Student Engagement app): a profile pre-filled from the student's data (major, minor, career interests) and editable with a 3-step flow; "You should meet" classmates; "Clubs for you"; and messages with each match. A "You should meet" row also shows on the dashboard.
+- `POST /api/connect`: with `OPENAI_API_KEY`, `text-embedding-3-small` similarity is blended with the rule score and GPT writes each reason.
+- Without a key, the offline matcher in `lib/connect/matching.ts` scores shared and related interests, major, goal and class year, and writes a specific reason.
+- Classmates are fictional demo profiles. Club times and rooms need confirming with Student Activities. Chat replies are simulated, and the profile and messages are saved in the browser (a database would make chat real).
 
 ## Design System (Relay)
 

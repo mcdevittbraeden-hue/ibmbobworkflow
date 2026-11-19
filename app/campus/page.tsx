@@ -159,7 +159,10 @@ export default function CampusPage() {
             {/* Student Orgs */}
             <FadeUp delay={0.2}>
               <section>
-                <h2 className="eyebrow mb-4">🎓 Student Organizations</h2>
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                  <h2 className="eyebrow">🎓 Student Organizations</h2>
+                  <Link href="/connect" className="text-xs font-bold text-ink underline">See clubs matched to you →</Link>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {STUDENT_ORGS.map((org) => (
                     <div key={org.id} className="card p-4">

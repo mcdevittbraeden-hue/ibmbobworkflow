@@ -7,6 +7,10 @@ import { Chat } from '@/components/Chat';
 import { getDemoSession } from '@/lib/demoSession';
 import { FadeUp, StaggerList, StaggerItem, SlideInLeft } from '@/components/Animate';
 import { AppNav } from '@/components/AppNav';
+import Link from 'next/link';
+import { profileFromTwin } from '@/lib/connect/profile';
+import { matchPeers } from '@/lib/connect/matching';
+import { PEERS } from '@/lib/connect/data';
 
 export default async function DashboardPage() {
   const session = getDemoSession();
@@ -18,8 +22,10 @@ export default async function DashboardPage() {
     session.user.accessToken
   );
 
-  const { alerts, canvas, banner, calendar } = context;
+  const { alerts, canvas, banner, calendar, career } = context;
   const firstName = session.user.name?.split(' ')[0] ?? 'Friar';
+  // Connect: classmates to meet, matched from the student's own data.
+  const meet = matchPeers(profileFromTwin(session.user.name ?? 'Student', banner.degreeAudit, career.profile), PEERS, 3);
   const highAlerts = alerts.filter((a) => a.severity === 'high');
 
   return (
@@ -96,6 +102,31 @@ export default async function DashboardPage() {
             </div>
           </FadeUp>
         </div>
+
+        {/* Connect: classmates to meet */}
+        {meet.length > 0 && (
+          <FadeUp delay={0.28}>
+            <section className="mt-6">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="eyebrow">You should meet</h2>
+                <Link href="/connect" className="text-xs font-bold text-ink underline">See matches &amp; clubs in Connect →</Link>
+              </div>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                {meet.map((m) => (
+                  <Link key={m.peer.id} href="/connect" className="card-white flex items-start gap-3 p-4 transition-colors hover:border-ink">
+                    <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-ink text-xs font-extrabold text-white">
+                      {m.peer.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-extrabold">{m.peer.name} <span className="font-normal text-muted">· {m.peer.major}</span></span>
+                      <span className="mt-0.5 block text-xs leading-relaxed text-ink/70">{m.reason}</span>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          </FadeUp>
+        )}
 
         {/* Courses grid */}
         <FadeUp delay={0.3}>
