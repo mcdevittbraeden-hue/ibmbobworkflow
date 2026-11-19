@@ -43,7 +43,7 @@ export function AppNav({ active, email }: { active: NavKey; email?: string | nul
           )}
         </nav>
 
-        <div className="hidden flex-shrink-0 items-center gap-3 md:flex">
+        <div className="hidden flex-shrink-0 items-center gap-3 xl:flex">
           {email && <span className="text-[13px] text-muted">{email}</span>}
           <span className="rounded-full bg-surface px-3 py-1 text-xs font-semibold text-muted">Demo</span>
         </div>
